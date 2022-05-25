@@ -1,8 +1,8 @@
 type Query {
-  todos: [Todo!]!
-  categories: [Category!]!
+  me: User!
 }
 
 type Mutation {
-  updatecategory: Boolean!
+  signup(input: SignupInput!): LoginResponse!
+  login(input: LoginInput!): LoginResponse!
 }

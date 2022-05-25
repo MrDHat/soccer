@@ -10,15 +10,15 @@ import (
 	graphmodel "soccer-manager/graph/model"
 )
 
-func (r *mutationResolver) Updatecategory(ctx context.Context) (bool, error) {
+func (r *mutationResolver) Signup(ctx context.Context, input graphmodel.SignupInput) (*graphmodel.LoginResponse, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*graphmodel.Todo, error) {
+func (r *mutationResolver) Login(ctx context.Context, input graphmodel.LoginInput) (*graphmodel.LoginResponse, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Categories(ctx context.Context) ([]*graphmodel.Category, error) {
+func (r *queryResolver) Me(ctx context.Context) (*graphmodel.User, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

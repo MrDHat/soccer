@@ -1,0 +1,41 @@
+type Team {
+  """
+  The id of the team
+  """
+  id: ID!
+  """
+  The created at timestamp of the team in unix epoch format
+  """
+  createdAt: Int
+  """
+  The updated at timestamp of the team in unix epoch format
+  """
+  updatedAt: Int
+  """
+  The name of the team
+  """
+  name: String
+  """
+  The country of the team
+  """
+  country: String
+  """
+  The budget details of the team
+  """
+  budget: TeamBudget
+  """
+  The user who owns the team
+  """
+  user: User
+  """
+  The players of the team
+  """
+  players: [Player]
+}
+
+type TeamBudget {
+  """
+  The amount of money the team has currently
+  """
+  remainingInDollars: Int
+}

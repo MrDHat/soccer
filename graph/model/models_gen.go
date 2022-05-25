@@ -8,18 +8,18 @@ import (
 	"strconv"
 )
 
-type Category struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+type LoginInput struct {
+	// The email id of the user which is used for login
+	Email string `json:"email"`
+	// The password of the user
+	Password string `json:"password"`
 }
 
-type NewCategory struct {
-	Name string `json:"name"`
-}
-
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type LoginResponse struct {
+	// The token of the user
+	Token string `json:"token"`
+	// The user
+	User *User `json:"user"`
 }
 
 type PaginationInput struct {
@@ -27,83 +27,124 @@ type PaginationInput struct {
 	Limit int64 `json:"limit"`
 }
 
-type Team struct {
-	ID   *int64  `json:"id"`
-	Name *string `json:"name"`
+type Player struct {
+	// The id of the player
+	ID int64 `json:"id"`
+	// The created at timestamp of the player in unix epoch format
+	CreatedAt *int64 `json:"createdAt"`
+	// The updated at timestamp of the player in unix epoch format
+	UpdatedAt *int64 `json:"updatedAt"`
+	// The first name of the player
+	FirstName *string `json:"firstName"`
+	// The last name of the player
+	LastName *string `json:"lastName"`
+	// The age of the player
+	Age *int64 `json:"age"`
+	// Current value of the player in dollars
+	CurrentValueInDollars *int64 `json:"currentValueInDollars"`
+	// Type of the player
+	Type *PlayerType `json:"type"`
+	// The team that the player belongs to
+	Team *Team `json:"team"`
 }
 
-type Todo struct {
-	ID   int64  `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
+type SignupInput struct {
+	// The email id of the user which is used for login
+	Email string `json:"email"`
+	// The name of the user
+	Name string `json:"name"`
+	// The password of the user
+	Password string `json:"password"`
+}
+
+type Team struct {
+	// The id of the team
+	ID int64 `json:"id"`
+	// The created at timestamp of the team in unix epoch format
+	CreatedAt *int64 `json:"createdAt"`
+	// The updated at timestamp of the team in unix epoch format
+	UpdatedAt *int64 `json:"updatedAt"`
+	// The name of the team
+	Name *string `json:"name"`
+	// The country of the team
+	Country *string `json:"country"`
+	// The budget details of the team
+	Budget *TeamBudget `json:"budget"`
+	// The user who owns the team
+	User *User `json:"user"`
+	// The players of the team
+	Players []*Player `json:"players"`
+}
+
+type TeamBudget struct {
+	// The amount of money the team has currently
+	RemainingInDollars *int64 `json:"remainingInDollars"`
+}
+
+type UpdateUserInput struct {
+	// The id of the user
+	ID int64 `json:"id"`
+	// The name of the user
+	Name string `json:"name"`
 }
 
 type User struct {
-	ID          int64   `json:"id"`
-	FirstName   *string `json:"firstName"`
-	LastName    *string `json:"lastName"`
-	FullName    *string `json:"fullName"`
-	Homezip     *string `json:"homezip"`
-	Alias       *string `json:"alias"`
-	Headline    *string `json:"headline"`
-	ImageURL    *string `json:"imageUrl"`
-	PhoneNumber *string `json:"phoneNumber"`
-	Gender      *Gender `json:"gender"`
-	About       *string `json:"about"`
-	CreatedAt   int64   `json:"createdAt"`
-	UpdatedAt   int64   `json:"updatedAt"`
+	// The id of the user
+	ID int64 `json:"id"`
+	// The created at timestamp of the user in unix epoch format
+	CreatedAt *int64 `json:"createdAt"`
+	// The updated at timestamp of the user in unix epoch format
+	UpdatedAt *int64 `json:"updatedAt"`
+	// The email id of the user which is used for login
+	Email *string `json:"email"`
+	// The name of the user
+	Name *string `json:"name"`
+	// The team this user belongs to
+	Team *Team `json:"team"`
 }
 
-type UserProfile struct {
-	ID        int64   `json:"id"`
-	Username  *string `json:"username"`
-	Bio       *string `json:"bio"`
-	Gender    *string `json:"gender"`
-	ImageURL  *string `json:"imageUrl"`
-	ImageType *string `json:"imageType"`
-	JoinedAt  *int64  `json:"joinedAt"`
-}
-
-type Gender string
+type PlayerType string
 
 const (
-	GenderMale   Gender = "Male"
-	GenderFemale Gender = "Female"
-	GenderOther  Gender = "Other"
+	PlayerTypeGoalkeeper PlayerType = "goalkeeper"
+	PlayerTypeDefender   PlayerType = "defender"
+	PlayerTypeMidfielder PlayerType = "midfielder"
+	PlayerTypeAttacker   PlayerType = "attacker"
 )
 
-var AllGender = []Gender{
-	GenderMale,
-	GenderFemale,
-	GenderOther,
+var AllPlayerType = []PlayerType{
+	PlayerTypeGoalkeeper,
+	PlayerTypeDefender,
+	PlayerTypeMidfielder,
+	PlayerTypeAttacker,
 }
 
-func (e Gender) IsValid() bool {
+func (e PlayerType) IsValid() bool {
 	switch e {
-	case GenderMale, GenderFemale, GenderOther:
+	case PlayerTypeGoalkeeper, PlayerTypeDefender, PlayerTypeMidfielder, PlayerTypeAttacker:
 		return true
 	}
 	return false
 }
 
-func (e Gender) String() string {
+func (e PlayerType) String() string {
 	return string(e)
 }
 
-func (e *Gender) UnmarshalGQL(v interface{}) error {
+func (e *PlayerType) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = Gender(str)
+	*e = PlayerType(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Gender", str)
+		return fmt.Errorf("%s is not a valid PlayerType", str)
 	}
 	return nil
 }
 
-func (e Gender) MarshalGQL(w io.Writer) {
+func (e PlayerType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

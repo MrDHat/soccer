@@ -1,0 +1,74 @@
+type User {
+  """
+  The id of the user
+  """
+  id: ID!
+  """
+  The created at timestamp of the user in unix epoch format
+  """
+  createdAt: Int
+  """
+  The updated at timestamp of the user in unix epoch format
+  """
+  updatedAt: Int
+  """
+  The email id of the user which is used for login
+  """
+  email: String
+  """
+  The name of the user
+  """
+  name: String
+  """
+  The team this user belongs to
+  """
+  team: Team
+}
+
+type LoginResponse {
+  """
+  The token of the user
+  """
+  token: String!
+  """
+  The user
+  """
+  user: User!
+}
+
+input SignupInput {
+  """
+  The email id of the user which is used for login
+  """
+  email: String!
+  """
+  The name of the user
+  """
+  name: String!
+  """
+  The password of the user
+  """
+  password: String!
+}
+
+input LoginInput {
+  """
+  The email id of the user which is used for login
+  """
+  email: String!
+  """
+  The password of the user
+  """
+  password: String!
+}
+
+input UpdateUserInput {
+  """
+  The id of the user
+  """
+  id: ID!
+  """
+  The name of the user
+  """
+  name: String!
+}

@@ -9,6 +9,6 @@ enum SortBy {
 }
 
 enum SortOrder {
-    asc
-    desc
+  asc
+  desc
 }

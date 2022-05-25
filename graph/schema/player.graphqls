@@ -1,0 +1,45 @@
+type Player {
+  """
+  The id of the player
+  """
+  id: ID!
+  """
+  The created at timestamp of the player in unix epoch format
+  """
+  createdAt: Int
+  """
+  The updated at timestamp of the player in unix epoch format
+  """
+  updatedAt: Int
+  """
+  The first name of the player
+  """
+  firstName: String
+  """
+  The last name of the player
+  """
+  lastName: String
+  """
+  The age of the player
+  """
+  age: Int
+  """
+  Current value of the player in dollars
+  """
+  currentValueInDollars: Int
+  """
+  Type of the player
+  """
+  type: PlayerType
+  """
+  The team that the player belongs to
+  """
+  team: Team
+}
+
+enum PlayerType {
+  goalkeeper
+  defender
+  midfielder
+  attacker
+}
