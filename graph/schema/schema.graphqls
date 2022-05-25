@@ -1,0 +1,8 @@
+type Query {
+  todos: [Todo!]!
+  categories: [Category!]!
+}
+
+type Mutation {
+  updatecategory: Boolean!
+}

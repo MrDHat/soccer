@@ -1,0 +1,14 @@
+input PaginationInput {
+  page: Int!
+  limit: Int!
+}
+
+enum SortBy {
+  latest
+  oldest
+}
+
+enum SortOrder {
+    asc
+    desc
+}

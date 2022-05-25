@@ -1,0 +1,43 @@
+version: "3"
+services:
+  soccer-manager:
+    networks:
+      - soccer-manager
+    build: .
+    container_name: soccer-manager
+    security_opt:
+      - seccomp:unconfined
+    env_file: .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - "../:/go/src/soccer-manager"
+    depends_on:
+      - minio-soccer-manager
+      - postgres-soccer-manager
+  postgres-soccer-manager:
+    networks:
+      - soccer-manager
+    image: quay.io/onet/postgresql:12
+    container_name: postgres-soccer-manager
+    ports:
+      - "5432:5432"
+    env_file: .env
+    volumes:
+      - postgres-soccer-manager:/bitnami/postgresql
+  minio-soccer-manager:
+    networks:
+      - soccer-manager
+    image: minio/minio:RELEASE.2019-07-24T02-02-23Z
+    container_name: minio-soccer-manager
+    ports:
+      - "9000:9000"
+    env_file: .env
+    volumes:
+      - minio-soccer-manager:/data
+    command: server /data
+volumes:
+  postgres-soccer-manager:
+  minio-soccer-manager:
+networks:
+  soccer-manager:
