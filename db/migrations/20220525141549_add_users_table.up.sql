@@ -11,7 +11,7 @@ CREATE TABLE "users" (
     from now()
   ),
   "updated_at" bigint NOT NULL DEFAULT -62135596800,
-  "deleted_at" bigint NOT NULL DEFAULT -62135596800
+  "deleted_at" bigint NULL
 );
 ALTER TABLE "users"
 ADD CONSTRAINT user_team_constrant FOREIGN KEY ("team_id") REFERENCES "teams" ("id");

@@ -5,7 +5,7 @@ import (
 
 	"soccer-manager/api/helpers"
 	apiutils "soccer-manager/api/utils"
-	"soccer-manager/api/validator"
+	"soccer-manager/api/validators"
 	"soccer-manager/constants"
 	"soccer-manager/db/models"
 	graphmodel "soccer-manager/graph/model"
@@ -22,7 +22,7 @@ type User interface {
 }
 
 type user struct {
-	userValidator validator.User
+	userValidator validators.User
 	userRepo      repository.UserRepo
 	teamHelper    helpers.Team
 }
@@ -51,7 +51,10 @@ func (svc *user) Signup(ctx context.Context, input graphmodel.SignupInput) (*gra
 
 	t := svc.teamHelper.CreateRandom(ctx)
 
-	// TODO: save team, players & user in a single transaction
+	err = svc.userRepo.SaveWithTeamAndPlayers(ctx, &u, &t)
+	if err != nil {
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
 
 	return nil, nil
 }
@@ -64,7 +67,7 @@ func (svc *user) Me(ctx context.Context) (*graphmodel.User, error) {
 
 func NewUser(
 	userRepo repository.UserRepo,
-	userValidator validator.User,
+	userValidator validators.User,
 	teamHelper helpers.Team,
 ) User {
 	return &user{

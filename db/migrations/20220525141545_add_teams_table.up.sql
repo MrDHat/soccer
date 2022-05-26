@@ -10,5 +10,5 @@ CREATE TABLE "teams" (
     from now()
   ),
   "updated_at" bigint NOT NULL DEFAULT -62135596800,
-  "deleted_at" bigint NOT NULL DEFAULT -62135596800
+  "deleted_at" bigint NULL
 );
