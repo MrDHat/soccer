@@ -1,6 +1,10 @@
 package models
 
-import "github.com/astaxie/beego/orm"
+import (
+	"github.com/astaxie/beego/orm"
+
+	graphmodel "soccer-manager/graph/model"
+)
 
 type User struct {
 	Base
@@ -12,6 +16,21 @@ type User struct {
 
 func (*User) TableName() string {
 	return "users"
+}
+
+func (m *User) Serialize() *graphmodel.User {
+	res := &graphmodel.User{
+		ID:        m.ID,
+		Name:      &m.Name,
+		Email:     &m.Email,
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
+	}
+	if m.Team != nil {
+		res.Team = m.Team.Serialize()
+	}
+
+	return res
 }
 
 func init() {

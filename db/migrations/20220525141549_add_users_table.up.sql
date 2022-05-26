@@ -3,7 +3,7 @@ CREATE SEQUENCE users_id_seq;
 CREATE TABLE "users" (
   "id" int4 NOT NULL UNIQUE DEFAULT nextval('users_id_seq'::regclass),
   "name" text NOT NULL DEFAULT '',
-  "email" text NOT NULL DEFAULT '',
+  "email" text UNIQUE NOT NULL DEFAULT '',
   "password" text NOT NULL DEFAULT '',
   "team_id" int4 NOT NULL DEFAULT 0,
   "created_at" bigint NOT NULL DEFAULT extract(

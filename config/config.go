@@ -67,6 +67,11 @@ func JWTSigningKey() string {
 	return configuration.apiConfig.jwtKey
 }
 
+// JWTExpirySeconds returns the JWT expiration
+func JWTExpirySeconds() int64 {
+	return configuration.apiConfig.jwtExpirySeconds
+}
+
 // BuildEnv returns the build env
 func BuildEnv() string {
 	return configuration.apiConfig.buildEnv

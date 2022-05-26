@@ -11,6 +11,7 @@ type api struct {
 	buildEnv           string
 	port               string
 	jwtKey             string
+	jwtExpirySeconds   int64
 	airbrakeProjectID  int64
 	airbrakeProjectKey string
 	serviceName        string
@@ -26,6 +27,7 @@ func (apiConfig *api) load() {
 	apiConfig.buildEnv = viper.GetString("build_env")
 	apiConfig.port = viper.GetString("port")
 	apiConfig.jwtKey = viper.GetString("jwt_signing_key")
+	apiConfig.jwtExpirySeconds = viper.GetInt64("jwt_expiry_seconds")
 
 	apiConfig.airbrakeProjectID = viper.GetInt64("airbrake_project_id")
 	apiConfig.airbrakeProjectKey = viper.GetString("airbrake_project_key")
