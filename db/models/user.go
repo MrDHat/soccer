@@ -33,6 +33,10 @@ func (m *User) Serialize() *graphmodel.User {
 	return res
 }
 
+type UserQuery struct {
+	User
+}
+
 func init() {
 	orm.RegisterModel(new(User))
 }

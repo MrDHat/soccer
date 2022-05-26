@@ -10,6 +10,7 @@ import (
 
 type User interface {
 	SignupInput(input graphmodel.SignupInput) error
+	LoginInput(input graphmodel.LoginInput) error
 }
 
 type user struct {
@@ -38,6 +39,26 @@ func (v *user) SignupInput(input graphmodel.SignupInput) error {
 	}
 	if len(input.Password) < constants.MinPasswordLength {
 		err = errors.New(constants.SignupInputPasswordTooShort)
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+
+	return nil
+}
+
+func (v *user) LoginInput(input graphmodel.LoginInput) error {
+	var (
+		groupError = "VALIDATE_LOGIN_INPUT"
+		err        error
+	)
+
+	if input.Email == "" {
+		err = errors.New(constants.LoginInputEmailEmpty)
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+	if input.Password == "" {
+		err = errors.New(constants.LoginInputPasswordEmpty)
 		logger.Log.WithError(err).Error(groupError)
 		return err
 	}

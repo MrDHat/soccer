@@ -15,7 +15,7 @@ func (r *mutationResolver) Signup(ctx context.Context, input graphmodel.SignupIn
 }
 
 func (r *mutationResolver) Login(ctx context.Context, input graphmodel.LoginInput) (*graphmodel.LoginResponse, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Services.User().Login(ctx, input)
 }
 
 func (r *queryResolver) Me(ctx context.Context) (*graphmodel.User, error) {

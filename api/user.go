@@ -16,6 +16,7 @@ import (
 	"soccer-manager/logger"
 	"soccer-manager/repository"
 
+	"github.com/astaxie/beego/orm"
 	jwtLib "github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -30,6 +31,27 @@ type user struct {
 	userValidator validators.User
 	userRepo      repository.UserRepo
 	teamHelper    helpers.Team
+}
+
+func (svc *user) generateToken(u *models.User) (string, error) {
+	groupError := "GENERATE_TOKEN"
+
+	logger.Log.Info("generating bearer token for the user")
+	jwtInfo := &jwt.JwtKey{
+		Claims: jwtLib.MapClaims{
+			"createdAt": time.Now().Unix(),
+			"exp":       time.Now().Add(time.Second * time.Duration(config.JWTExpirySeconds())),
+			"id":        u.ID,
+		},
+	}
+
+	err := jwtInfo.GenerateJWT()
+	if err != nil {
+		logger.Log.WithError(err).Error(groupError)
+		return "", err
+	}
+
+	return jwtInfo.TokenString, nil
 }
 
 func (svc *user) Signup(ctx context.Context, input graphmodel.SignupInput) (*graphmodel.LoginResponse, error) {
@@ -69,26 +91,50 @@ func (svc *user) Signup(ctx context.Context, input graphmodel.SignupInput) (*gra
 
 	res.User = u.Serialize()
 
-	logger.Log.Info("generating bearer token for the user")
-	jwtInfo := &jwt.JwtKey{
-		Claims: jwtLib.MapClaims{
-			"createdAt": time.Now().Unix(),
-			"exp":       time.Now().Add(time.Second * time.Duration(config.JWTExpirySeconds())),
-			"id":        u.ID,
-		},
-	}
-
-	// TODO: rollback if token generation fails
-	err = jwtInfo.GenerateJWT()
+	res.Token, err = svc.generateToken(&u)
+	// if token generation fails for some reason, no need to fail the entire thing since the f/e can always ask for another token
 	if err != nil {
-		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+		logger.Log.WithError(err).Error(constants.InternalServerError)
 	}
-	res.Token = jwtInfo.TokenString
 
 	return res, nil
 }
 func (svc *user) Login(ctx context.Context, input graphmodel.LoginInput) (*graphmodel.LoginResponse, error) {
-	return nil, nil
+	res := &graphmodel.LoginResponse{}
+
+	logger.Log.Info("validating input")
+	err := svc.userValidator.LoginInput(input)
+	if err != nil {
+		return nil, apiutils.HandleError(ctx, constants.InvalidRequestData, err)
+	}
+	logger.Log.Info("input is valid")
+
+	logger.Log.Info("finding user by email")
+	user, err := svc.userRepo.FindOne(ctx, models.UserQuery{
+		User: models.User{
+			Email: input.Email,
+		},
+	}, true)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.UserNotFound))
+		}
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+
+	logger.Log.Info("validating user's password")
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	if err != nil {
+		return nil, apiutils.HandleError(ctx, constants.Unauthorized, err)
+	}
+
+	res.Token, err = svc.generateToken(user)
+	if err != nil {
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+	res.User = user.Serialize()
+
+	return res, nil
 }
 func (svc *user) Me(ctx context.Context) (*graphmodel.User, error) {
 	return nil, nil

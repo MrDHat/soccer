@@ -8,10 +8,13 @@ import (
 	"soccer-manager/db"
 	"soccer-manager/db/models"
 	"soccer-manager/logger"
+
+	"github.com/thoas/go-funk"
 )
 
 type UserRepo interface {
 	SaveWithTeamAndPlayers(ctx context.Context, user *models.User, team *models.Team) error
+	FindOne(ctx context.Context, query models.UserQuery, findRelated bool) (*models.User, error)
 }
 
 type userRepo struct {
@@ -97,6 +100,39 @@ func (repo *userRepo) SaveWithTeamAndPlayers(ctx context.Context, user *models.U
 	logger.Log.Info("transaction done")
 
 	return nil
+}
+
+func (repo *userRepo) FindOne(ctx context.Context, query models.UserQuery, findRelated bool) (*models.User, error) {
+	var (
+		groupError = "FIND_ONE_USER"
+		db         = repo.dbInstance.GetReadableDB()
+		user       = &models.User{}
+	)
+
+	// failsafe for empty query
+	if funk.IsEmpty(query) {
+		return nil, nil
+	}
+
+	qs := db.QueryTable(user)
+	if findRelated {
+		qs = qs.RelatedSel()
+	}
+
+	if query.ID != 0 {
+		qs = qs.Filter("id", query.ID)
+	}
+	if query.Email != "" {
+		qs = qs.Filter("email", query.Email)
+	}
+
+	err := qs.One(user)
+	if err != nil {
+		logger.Log.WithError(err).Error(groupError)
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func NewUserRepo(

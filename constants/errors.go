@@ -16,7 +16,10 @@ const (
 	SignupInputEmailEmpty       = "SignupInputEmailEmpty"
 	SignupInputPasswordEmpty    = "SignupInputPasswordEmpty"
 	SignupInputPasswordTooShort = "SignupInputPasswordTooShort"
+	LoginInputEmailEmpty        = "LoginInputEmailEmpty"
+	LoginInputPasswordEmpty     = "LoginInputPasswordEmpty"
 	UserAlreadyExists           = "UserAlreadyExists"
+	UserNotFound                = "UserNotFound"
 )
 
 var ErrorCode = map[string]string{
@@ -30,7 +33,10 @@ var ErrorCode = map[string]string{
 	SignupInputEmailEmpty:       "200002",
 	SignupInputPasswordEmpty:    "200003",
 	SignupInputPasswordTooShort: "200004",
-	UserAlreadyExists:           "200005",
+	LoginInputEmailEmpty:        "200005",
+	LoginInputPasswordEmpty:     "200007",
+	UserAlreadyExists:           "200007",
+	UserNotFound:                "200008",
 }
 
 // ErrorString returns the string version of the error which is sent to the user
@@ -45,5 +51,8 @@ var ErrorString = map[string]string{
 	SignupInputEmailEmpty:       "The email field cannot be empty",
 	SignupInputPasswordEmpty:    "The password field cannot be empty",
 	SignupInputPasswordTooShort: fmt.Sprintf("The password is too short. It should be minimum %v characters", MinPasswordLength),
+	LoginInputEmailEmpty:        "The email field cannot be empty",
+	LoginInputPasswordEmpty:     "The password field cannot be empty",
 	UserAlreadyExists:           "A user with this email already exists",
+	UserNotFound:                "The user could not be found",
 }
