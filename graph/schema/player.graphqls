@@ -54,3 +54,33 @@ enum PlayerType {
 input TeamPlayerListInput {
   pagination: PaginationInput
 }
+
+input UpdatePlayerInput {
+  """
+  The id of the player
+  """
+  id: ID!
+  """
+  The first name of the player
+  """
+  firstName: String
+  """
+  The last name of the player
+  """
+  lastName: String
+  """
+  The country of the player
+  """
+  country: String
+}
+
+input MovePlayerToTransferInput {
+  """
+  The id of the player
+  """
+  id: ID!
+  """
+  The amount in dollars that the player will be transfered for
+  """
+  amountInDollars: Int!
+}

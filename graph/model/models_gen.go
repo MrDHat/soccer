@@ -8,6 +8,10 @@ import (
 	"strconv"
 )
 
+type BuyPlayerInput struct {
+	PlayerTransferID int64 `json:"playerTransferId"`
+}
+
 type LoginInput struct {
 	// The email id of the user which is used for login
 	Email string `json:"email"`
@@ -20,6 +24,13 @@ type LoginResponse struct {
 	Token string `json:"token"`
 	// The user
 	User *User `json:"user"`
+}
+
+type MovePlayerToTransferInput struct {
+	// The id of the player
+	ID int64 `json:"id"`
+	// The amount in dollars that the player will be transfered for
+	AmountInDollars int64 `json:"amountInDollars"`
 }
 
 type PaginationInput struct {
@@ -55,6 +66,24 @@ type PlayerList struct {
 	Data         []*Player `json:"data"`
 }
 
+type PlayerTransfer struct {
+	ID              int64   `json:"id"`
+	Player          *Player `json:"player"`
+	AmountInDollars *int64  `json:"AmountInDollars"`
+	OwnerTeam       *Team   `json:"OwnerTeam"`
+}
+
+type PlayerTransferList struct {
+	TotalPage    *int64    `json:"totalPage"`
+	CurrentPage  *int64    `json:"currentPage"`
+	TotalRecords *int64    `json:"totalRecords"`
+	Data         []*Player `json:"data"`
+}
+
+type PlayerTransferListInput struct {
+	Pagination *PaginationInput `json:"pagination"`
+}
+
 type SignupInput struct {
 	// The email id of the user which is used for login
 	Email string `json:"email"`
@@ -71,6 +100,26 @@ type TeamBudget struct {
 
 type TeamPlayerListInput struct {
 	Pagination *PaginationInput `json:"pagination"`
+}
+
+type UpdatePlayerInput struct {
+	// The id of the player
+	ID int64 `json:"id"`
+	// The first name of the player
+	FirstName *string `json:"firstName"`
+	// The last name of the player
+	LastName *string `json:"lastName"`
+	// The country of the player
+	Country *string `json:"country"`
+}
+
+type UpdateTeamInput struct {
+	// The id of the team
+	ID int64 `json:"id"`
+	// The name of the team
+	Name *string `json:"name"`
+	// The country of the team
+	Country *string `json:"country"`
 }
 
 type UpdateUserInput struct {

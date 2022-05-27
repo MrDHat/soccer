@@ -1,9 +1,16 @@
 type Query {
   me: User!
   myTeam: Team!
+  playerTransfers(input: PlayerTransferListInput!): PlayerTransferList
 }
 
 type Mutation {
   signup(input: SignupInput!): LoginResponse!
   login(input: LoginInput!): LoginResponse!
+
+  updateTeam(input: UpdateTeamInput!): Team!
+
+  updatePlayer(input: UpdatePlayerInput!): Player!
+  movePlayerToTransfer(input: MovePlayerToTransferInput!): Player!
+  buyPlayer(input: BuyPlayerInput!): Player!
 }

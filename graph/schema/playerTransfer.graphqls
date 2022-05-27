@@ -1,0 +1,21 @@
+type PlayerTransfer {
+  id: ID!
+  player: Player
+  AmountInDollars: Int
+  OwnerTeam: Team
+}
+
+type PlayerTransferList {
+  totalPage: Int
+  currentPage: Int
+  totalRecords: Int
+  data: [Player!]!
+}
+
+input PlayerTransferListInput {
+  pagination: PaginationInput
+}
+
+input BuyPlayerInput {
+  playerTransferId: ID!
+}

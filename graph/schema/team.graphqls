@@ -39,3 +39,18 @@ type TeamBudget {
   """
   remainingInDollars: Int
 }
+
+input UpdateTeamInput {
+  """
+  The id of the team
+  """
+  id: ID!
+  """
+  The name of the team
+  """
+  name: String
+  """
+  The country of the team
+  """
+  country: String
+}
