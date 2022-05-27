@@ -30,12 +30,14 @@ func Init() Services {
 	userValidator := validators.NewUser()
 
 	teamHelper := helpers.NewTeam()
+	authHelper := helpers.NewAuth()
 
 	return &services{
 		user: api.NewUser(
 			userRepo,
 			userValidator,
 			teamHelper,
+			authHelper,
 		),
 	}
 }

@@ -15,9 +15,11 @@ import (
 	"soccer-manager/jwt"
 	"soccer-manager/logger"
 	"soccer-manager/repository"
+	"soccer-manager/utils"
 
 	"github.com/astaxie/beego/orm"
 	jwtLib "github.com/dgrijalva/jwt-go"
+	"github.com/thoas/go-funk"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -31,6 +33,7 @@ type user struct {
 	userValidator validators.User
 	userRepo      repository.UserRepo
 	teamHelper    helpers.Team
+	authHelper    helpers.Auth
 }
 
 func (svc *user) generateToken(u *models.User) (string, error) {
@@ -137,17 +140,44 @@ func (svc *user) Login(ctx context.Context, input graphmodel.LoginInput) (*graph
 	return res, nil
 }
 func (svc *user) Me(ctx context.Context) (*graphmodel.User, error) {
-	return nil, nil
+	logger.Log.Info("verifying auth for the user")
+	userID, isAuthed := svc.authHelper.IsAuthorized(ctx, 0)
+	if !isAuthed {
+		return nil, apiutils.HandleError(ctx, constants.Unauthorized, errors.New(constants.Unauthorized))
+	}
+
+	// check if team is being asked for in the user details
+	fields := utils.GraphQLPreloads(ctx)
+	fetchRelatedToUser := funk.ContainsString(fields, "team")
+
+	logger.Log.Info("getting user by id")
+	user, err := svc.userRepo.FindOne(ctx, models.UserQuery{
+		User: models.User{
+			Base: models.Base{
+				ID: userID,
+			},
+		},
+	}, fetchRelatedToUser)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.UserNotFound))
+		}
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+
+	return user.Serialize(), nil
 }
 
 func NewUser(
 	userRepo repository.UserRepo,
 	userValidator validators.User,
 	teamHelper helpers.Team,
+	authHelper helpers.Auth,
 ) User {
 	return &user{
 		userRepo:      userRepo,
 		userValidator: userValidator,
 		teamHelper:    teamHelper,
+		authHelper:    authHelper,
 	}
 }

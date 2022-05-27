@@ -20,15 +20,19 @@ const (
 	LoginInputPasswordEmpty     = "LoginInputPasswordEmpty"
 	UserAlreadyExists           = "UserAlreadyExists"
 	UserNotFound                = "UserNotFound"
+	NoUserIdInContext           = "NoUserIdInContext"
+	NoUserTokenInContext        = "NoUserTokenInContext"
 )
 
 var ErrorCode = map[string]string{
+	// 500 errors
 	InternalServerError: "100000",
-	InvalidRequestData:  "200000",
-	Unauthorized:        "300000",
-	NotFound:            "400000",
-	Conflict:            "500000",
 
+	// 404 errors
+	NotFound: "400000",
+
+	// 400 errors
+	InvalidRequestData:          "200000",
 	SignupInputNameEmpty:        "200001",
 	SignupInputEmailEmpty:       "200002",
 	SignupInputPasswordEmpty:    "200003",
@@ -37,6 +41,11 @@ var ErrorCode = map[string]string{
 	LoginInputPasswordEmpty:     "200007",
 	UserAlreadyExists:           "200007",
 	UserNotFound:                "200008",
+
+	// 401 errors
+	Unauthorized:         "300000",
+	NoUserIdInContext:    "300001",
+	NoUserTokenInContext: "300002",
 }
 
 // ErrorString returns the string version of the error which is sent to the user
@@ -55,4 +64,6 @@ var ErrorString = map[string]string{
 	LoginInputPasswordEmpty:     "The password field cannot be empty",
 	UserAlreadyExists:           "A user with this email already exists",
 	UserNotFound:                "The user could not be found",
+	NoUserIdInContext:           "The user id could not be found in the context",
+	NoUserTokenInContext:        "The user token could not be found in the context",
 }

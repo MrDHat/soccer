@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"soccer-manager/graph/generated"
 	graphmodel "soccer-manager/graph/model"
 )
@@ -19,7 +18,8 @@ func (r *mutationResolver) Login(ctx context.Context, input graphmodel.LoginInpu
 }
 
 func (r *queryResolver) Me(ctx context.Context) (*graphmodel.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Services.User().Me(ctx)
+
 }
 
 // Mutation returns generated.MutationResolver implementation.
