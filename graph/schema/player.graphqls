@@ -37,9 +37,20 @@ type Player {
   team: Team
 }
 
+type PlayerList {
+  totalPage: Int
+  currentPage: Int
+  totalRecords: Int
+  data: [Player!]!
+}
+
 enum PlayerType {
   goalkeeper
   defender
   midfielder
   attacker
+}
+
+input TeamPlayerListInput {
+  pagination: PaginationInput
 }

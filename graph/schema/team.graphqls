@@ -30,7 +30,7 @@ type Team {
   """
   The players of the team
   """
-  players: [Player]
+  players(input: TeamPlayerListInput): PlayerList
 }
 
 type TeamBudget {

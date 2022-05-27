@@ -19,7 +19,10 @@ func (r *mutationResolver) Login(ctx context.Context, input graphmodel.LoginInpu
 
 func (r *queryResolver) Me(ctx context.Context) (*graphmodel.User, error) {
 	return r.Services.User().Me(ctx)
+}
 
+func (r *queryResolver) MyTeam(ctx context.Context) (*graphmodel.Team, error) {
+	return r.Services.Team().My(ctx)
 }
 
 // Mutation returns generated.MutationResolver implementation.

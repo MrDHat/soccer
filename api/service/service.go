@@ -11,14 +11,26 @@ import (
 // Services is the interface for enlosing all the services
 type Services interface {
 	User() api.User
+	Team() api.Team
+	Player() api.Player
 }
 
 type services struct {
-	user api.User
+	user   api.User
+	team   api.Team
+	player api.Player
 }
 
 func (s *services) User() api.User {
 	return s.user
+}
+
+func (s *services) Team() api.Team {
+	return s.team
+}
+
+func (s *services) Player() api.Player {
+	return s.player
 }
 
 // Init intializes the services
@@ -26,6 +38,7 @@ func Init() Services {
 	db := instance.DB()
 
 	userRepo := repository.NewUserRepo(db)
+	playerRepo := repository.NewPlayerRepo(db)
 
 	userValidator := validators.NewUser()
 
@@ -38,6 +51,13 @@ func Init() Services {
 			userValidator,
 			teamHelper,
 			authHelper,
+		),
+		team: api.NewTeam(
+			userRepo,
+			authHelper,
+		),
+		player: api.NewPlayer(
+			playerRepo,
 		),
 	}
 }

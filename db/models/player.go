@@ -1,6 +1,10 @@
 package models
 
-import "github.com/astaxie/beego/orm"
+import (
+	"github.com/astaxie/beego/orm"
+
+	graphmodel "soccer-manager/graph/model"
+)
 
 type Player struct {
 	Base
@@ -14,6 +18,39 @@ type Player struct {
 
 func (*Player) TableName() string {
 	return "players"
+}
+
+func stringToPlayerTypeEnum(val *string) *graphmodel.PlayerType {
+	if val != nil {
+		res := graphmodel.PlayerType(*val)
+		return &res
+	}
+	return nil
+}
+
+func (m *Player) Serialize() *graphmodel.Player {
+	res := &graphmodel.Player{
+		ID:                    m.ID,
+		CreatedAt:             m.CreatedAt,
+		UpdatedAt:             m.UpdatedAt,
+		FirstName:             &m.FirstName,
+		LastName:              &m.LastName,
+		Age:                   &m.Age,
+		CurrentValueInDollars: &m.CurrentValueInDollars,
+		Type:                  stringToPlayerTypeEnum(&m.PlayerType),
+	}
+	if m.Team != nil {
+		res.Team = m.Team.Serialize()
+	}
+	return res
+}
+
+type PlayerQuery struct {
+	Player
+	Limit     *int64
+	Page      *int64
+	SortOrder *string
+	SortBy    *string
 }
 
 func init() {

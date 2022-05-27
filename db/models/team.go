@@ -25,8 +25,15 @@ func (m *Team) Serialize() *graphmodel.Team {
 		Country:   m.Country,
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
+		Budget: &graphmodel.TeamBudget{
+			RemainingInDollars: &m.RemainingBudgetInDollars,
+		},
 	}
 	return res
+}
+
+type TeamQuery struct {
+	Team
 }
 
 func init() {
