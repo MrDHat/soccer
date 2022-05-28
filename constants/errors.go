@@ -22,6 +22,9 @@ const (
 	UserNotFound                = "UserNotFound"
 	NoUserIdInContext           = "NoUserIdInContext"
 	NoUserTokenInContext        = "NoUserTokenInContext"
+
+	// team errors
+	TeamNotFound = "TeamNotFound"
 )
 
 var ErrorCode = map[string]string{
@@ -29,7 +32,9 @@ var ErrorCode = map[string]string{
 	InternalServerError: "100000",
 
 	// 404 errors
-	NotFound: "400000",
+	NotFound:     "400000",
+	UserNotFound: "400001",
+	TeamNotFound: "400002",
 
 	// 400 errors
 	InvalidRequestData:          "200000",
@@ -40,7 +45,6 @@ var ErrorCode = map[string]string{
 	LoginInputEmailEmpty:        "200005",
 	LoginInputPasswordEmpty:     "200007",
 	UserAlreadyExists:           "200007",
-	UserNotFound:                "200008",
 
 	// 401 errors
 	Unauthorized:         "300000",
@@ -66,4 +70,6 @@ var ErrorString = map[string]string{
 	UserNotFound:                "The user could not be found",
 	NoUserIdInContext:           "The user id could not be found in the context",
 	NoUserTokenInContext:        "The user token could not be found in the context",
+
+	TeamNotFound: "The team could not be found",
 }

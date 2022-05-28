@@ -19,7 +19,7 @@ func (r *mutationResolver) Login(ctx context.Context, input graphmodel.LoginInpu
 }
 
 func (r *mutationResolver) UpdateTeam(ctx context.Context, input graphmodel.UpdateTeamInput) (*graphmodel.Team, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Services.Team().Update(ctx, input)
 }
 
 func (r *mutationResolver) UpdatePlayer(ctx context.Context, input graphmodel.UpdatePlayerInput) (*graphmodel.Player, error) {

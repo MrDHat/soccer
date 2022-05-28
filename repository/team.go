@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"soccer-manager/db"
 	"soccer-manager/db/models"
@@ -12,6 +13,7 @@ import (
 
 type TeamRepo interface {
 	FindOne(ctx context.Context, query models.TeamQuery) (*models.Team, error)
+	Update(ctx context.Context, doc *models.Team, fieldsToUpdate []string) error
 }
 
 type teamRepo struct {
@@ -43,6 +45,27 @@ func (repo *teamRepo) FindOne(ctx context.Context, query models.TeamQuery) (*mod
 	}
 
 	return team, nil
+}
+
+func (repo *teamRepo) Update(ctx context.Context, doc *models.Team, fieldsToUpdate []string) error {
+	groupError := "UPDATE_TEAM"
+
+	updatedAt := time.Now().Unix()
+	doc.UpdatedAt = &updatedAt
+
+	db := repo.dbInstance.GetWritableDB()
+
+	if len(fieldsToUpdate) > 0 {
+		fieldsToUpdate = append(fieldsToUpdate, "updated_at")
+	}
+
+	_, err := db.Update(doc, fieldsToUpdate...)
+	if err != nil {
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+
+	return nil
 }
 
 func NewTeamRepo(

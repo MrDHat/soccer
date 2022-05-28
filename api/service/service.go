@@ -38,6 +38,7 @@ func Init() Services {
 	db := instance.DB()
 
 	userRepo := repository.NewUserRepo(db)
+	teamRepo := repository.NewTeamRepo(db)
 	playerRepo := repository.NewPlayerRepo(db)
 
 	userValidator := validators.NewUser()
@@ -54,6 +55,7 @@ func Init() Services {
 		),
 		team: api.NewTeam(
 			userRepo,
+			teamRepo,
 			authHelper,
 		),
 		player: api.NewPlayer(
