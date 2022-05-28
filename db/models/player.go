@@ -13,6 +13,7 @@ type Player struct {
 	Age                   int64  `json:"age" orm:"column(age)"`
 	CurrentValueInDollars int64  `json:"current_value_in_dollars" orm:"column(current_value_in_dollars)"`
 	PlayerType            string `json:"player_type" orm:"column(player_type)"`
+	Country               string `json:"country" orm:"column(country)"`
 	Team                  *Team  `json:"team" orm:"rel(fk)"`
 }
 
@@ -38,6 +39,7 @@ func (m *Player) Serialize() *graphmodel.Player {
 		Age:                   &m.Age,
 		CurrentValueInDollars: &m.CurrentValueInDollars,
 		Type:                  stringToPlayerTypeEnum(&m.PlayerType),
+		Country:               &m.Country,
 	}
 	if m.Team != nil {
 		res.Team = m.Team.Serialize()

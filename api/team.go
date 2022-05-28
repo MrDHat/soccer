@@ -70,7 +70,7 @@ func (svc *team) Update(ctx context.Context, input graphmodel.UpdateTeamInput) (
 				ID: userID,
 			},
 		},
-	}, true)
+	}, false)
 	if err != nil {
 		if err == orm.ErrNoRows {
 			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.UserNotFound))

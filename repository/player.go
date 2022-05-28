@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"soccer-manager/constants"
 	"soccer-manager/db"
@@ -14,6 +15,7 @@ import (
 type PlayerRepo interface {
 	FindOne(ctx context.Context, query models.PlayerQuery) (*models.Player, error)
 	FindAll(ctx context.Context, query models.PlayerQuery, fetchRelated bool, returnCount bool) ([]*models.Player, int64, error)
+	Update(ctx context.Context, doc *models.Player, fieldsToUpdate []string) error
 }
 
 type playerRepo struct {
@@ -98,6 +100,27 @@ func (repo *playerRepo) FindAll(ctx context.Context, query models.PlayerQuery, f
 	}
 
 	return res, count, nil
+}
+
+func (repo *playerRepo) Update(ctx context.Context, doc *models.Player, fieldsToUpdate []string) error {
+	groupError := "UPDATE_PLAYER"
+
+	updatedAt := time.Now().Unix()
+	doc.UpdatedAt = &updatedAt
+
+	db := repo.dbInstance.GetWritableDB()
+
+	if len(fieldsToUpdate) > 0 {
+		fieldsToUpdate = append(fieldsToUpdate, "updated_at")
+	}
+
+	_, err := db.Update(doc, fieldsToUpdate...)
+	if err != nil {
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+
+	return nil
 }
 
 func NewPlayerRepo(

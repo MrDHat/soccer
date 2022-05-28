@@ -2,23 +2,30 @@ package api
 
 import (
 	"context"
+	"errors"
 	"math"
 
+	"soccer-manager/api/helpers"
 	apiutils "soccer-manager/api/utils"
 	"soccer-manager/constants"
 	"soccer-manager/db/models"
 	graphmodel "soccer-manager/graph/model"
+	"soccer-manager/logger"
 	"soccer-manager/repository"
+	"soccer-manager/utils"
 
 	"github.com/astaxie/beego/orm"
 )
 
 type Player interface {
 	ListForTeam(ctx context.Context, obj *graphmodel.Team, input *graphmodel.TeamPlayerListInput) (*graphmodel.PlayerList, error)
+	Update(ctx context.Context, input graphmodel.UpdatePlayerInput) (*graphmodel.Player, error)
 }
 
 type player struct {
 	playerRepo repository.PlayerRepo
+	userRepo   repository.UserRepo
+	authHelper helpers.Auth
 }
 
 func (svc *player) ListForTeam(ctx context.Context, obj *graphmodel.Team, input *graphmodel.TeamPlayerListInput) (*graphmodel.PlayerList, error) {
@@ -72,10 +79,71 @@ func (svc *player) ListForTeam(ctx context.Context, obj *graphmodel.Team, input 
 	return res, nil
 }
 
+func (svc *player) Update(ctx context.Context, input graphmodel.UpdatePlayerInput) (*graphmodel.Player, error) {
+	logger.Log.Info("verifying auth for the user")
+	userID, isAuthed := svc.authHelper.IsAuthorized(ctx, 0)
+	if !isAuthed {
+		return nil, apiutils.HandleError(ctx, constants.Unauthorized, errors.New(constants.Unauthorized))
+	}
+
+	logger.Log.Info("getting user by id")
+	user, err := svc.userRepo.FindOne(ctx, models.UserQuery{
+		User: models.User{
+			Base: models.Base{
+				ID: userID,
+			},
+		},
+	}, false)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.UserNotFound))
+		}
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+
+	logger.Log.Info("getting player by id")
+	p, err := svc.playerRepo.FindOne(ctx, models.PlayerQuery{
+		Player: models.Player{
+			Base: models.Base{
+				ID: input.ID,
+			},
+		},
+	})
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.PlayerNotFound))
+		}
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+
+	if p.Team.ID != user.Team.ID {
+		return nil, apiutils.HandleError(ctx, constants.Unauthorized, errors.New(constants.Unauthorized))
+	}
+
+	logger.Log.Info("updating player")
+	p.FirstName = *utils.CheckNullAndSetString(&p.FirstName, input.FirstName)
+	p.LastName = *utils.CheckNullAndSetString(&p.LastName, input.LastName)
+	p.Country = *utils.CheckNullAndSetString(&p.Country, input.Country)
+
+	err = svc.playerRepo.Update(ctx, p, []string{})
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.PlayerNotFound))
+		}
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+
+	return p.Serialize(), nil
+}
+
 func NewPlayer(
 	playerRepo repository.PlayerRepo,
+	userRepo repository.UserRepo,
+	authHelper helpers.Auth,
 ) Player {
 	return &player{
 		playerRepo: playerRepo,
+		userRepo:   userRepo,
+		authHelper: authHelper,
 	}
 }

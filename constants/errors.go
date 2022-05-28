@@ -25,6 +25,9 @@ const (
 
 	// team errors
 	TeamNotFound = "TeamNotFound"
+
+	// player errors
+	PlayerNotFound = "PlayerNotFound"
 )
 
 var ErrorCode = map[string]string{
@@ -32,9 +35,10 @@ var ErrorCode = map[string]string{
 	InternalServerError: "100000",
 
 	// 404 errors
-	NotFound:     "400000",
-	UserNotFound: "400001",
-	TeamNotFound: "400002",
+	NotFound:       "400000",
+	UserNotFound:   "400001",
+	TeamNotFound:   "400002",
+	PlayerNotFound: "400003",
 
 	// 400 errors
 	InvalidRequestData:          "200000",
@@ -72,4 +76,6 @@ var ErrorString = map[string]string{
 	NoUserTokenInContext:        "The user token could not be found in the context",
 
 	TeamNotFound: "The team could not be found",
+
+	PlayerNotFound: "The player could not be found",
 }

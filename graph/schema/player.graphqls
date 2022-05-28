@@ -32,6 +32,10 @@ type Player {
   """
   type: PlayerType
   """
+  The country of the player
+  """
+  country: String
+  """
   The team that the player belongs to
   """
   team: Team

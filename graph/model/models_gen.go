@@ -55,6 +55,8 @@ type Player struct {
 	CurrentValueInDollars *int64 `json:"currentValueInDollars"`
 	// Type of the player
 	Type *PlayerType `json:"type"`
+	// The country of the player
+	Country *string `json:"country"`
 	// The team that the player belongs to
 	Team *Team `json:"team"`
 }

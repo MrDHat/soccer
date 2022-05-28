@@ -61,6 +61,7 @@ type ComplexityRoot struct {
 
 	Player struct {
 		Age                   func(childComplexity int) int
+		Country               func(childComplexity int) int
 		CreatedAt             func(childComplexity int) int
 		CurrentValueInDollars func(childComplexity int) int
 		FirstName             func(childComplexity int) int
@@ -247,6 +248,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Player.Age(childComplexity), true
+
+	case "Player.country":
+		if e.complexity.Player.Country == nil {
+			break
+		}
+
+		return e.complexity.Player.Country(childComplexity), true
 
 	case "Player.createdAt":
 		if e.complexity.Player.CreatedAt == nil {
@@ -650,6 +658,10 @@ enum SortOrder {
   Type of the player
   """
   type: PlayerType
+  """
+  The country of the player
+  """
+  country: String
   """
   The team that the player belongs to
   """
@@ -1407,6 +1419,8 @@ func (ec *executionContext) fieldContext_Mutation_updatePlayer(ctx context.Conte
 				return ec.fieldContext_Player_currentValueInDollars(ctx, field)
 			case "type":
 				return ec.fieldContext_Player_type(ctx, field)
+			case "country":
+				return ec.fieldContext_Player_country(ctx, field)
 			case "team":
 				return ec.fieldContext_Player_team(ctx, field)
 			}
@@ -1482,6 +1496,8 @@ func (ec *executionContext) fieldContext_Mutation_movePlayerToTransfer(ctx conte
 				return ec.fieldContext_Player_currentValueInDollars(ctx, field)
 			case "type":
 				return ec.fieldContext_Player_type(ctx, field)
+			case "country":
+				return ec.fieldContext_Player_country(ctx, field)
 			case "team":
 				return ec.fieldContext_Player_team(ctx, field)
 			}
@@ -1557,6 +1573,8 @@ func (ec *executionContext) fieldContext_Mutation_buyPlayer(ctx context.Context,
 				return ec.fieldContext_Player_currentValueInDollars(ctx, field)
 			case "type":
 				return ec.fieldContext_Player_type(ctx, field)
+			case "country":
+				return ec.fieldContext_Player_country(ctx, field)
 			case "team":
 				return ec.fieldContext_Player_team(ctx, field)
 			}
@@ -1908,6 +1926,47 @@ func (ec *executionContext) fieldContext_Player_type(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Player_country(ctx context.Context, field graphql.CollectedField, obj *graphmodel.Player) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Player_country(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Country, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Player_country(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Player",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Player_team(ctx context.Context, field graphql.CollectedField, obj *graphmodel.Player) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Player_team(ctx, field)
 	if err != nil {
@@ -2145,6 +2204,8 @@ func (ec *executionContext) fieldContext_PlayerList_data(ctx context.Context, fi
 				return ec.fieldContext_Player_currentValueInDollars(ctx, field)
 			case "type":
 				return ec.fieldContext_Player_type(ctx, field)
+			case "country":
+				return ec.fieldContext_Player_country(ctx, field)
 			case "team":
 				return ec.fieldContext_Player_team(ctx, field)
 			}
@@ -2250,6 +2311,8 @@ func (ec *executionContext) fieldContext_PlayerTransfer_player(ctx context.Conte
 				return ec.fieldContext_Player_currentValueInDollars(ctx, field)
 			case "type":
 				return ec.fieldContext_Player_type(ctx, field)
+			case "country":
+				return ec.fieldContext_Player_country(ctx, field)
 			case "team":
 				return ec.fieldContext_Player_team(ctx, field)
 			}
@@ -2537,6 +2600,8 @@ func (ec *executionContext) fieldContext_PlayerTransferList_data(ctx context.Con
 				return ec.fieldContext_Player_currentValueInDollars(ctx, field)
 			case "type":
 				return ec.fieldContext_Player_type(ctx, field)
+			case "country":
+				return ec.fieldContext_Player_country(ctx, field)
 			case "team":
 				return ec.fieldContext_Player_team(ctx, field)
 			}
@@ -5797,6 +5862,10 @@ func (ec *executionContext) _Player(ctx context.Context, sel ast.SelectionSet, o
 		case "type":
 
 			out.Values[i] = ec._Player_type(ctx, field, obj)
+
+		case "country":
+
+			out.Values[i] = ec._Player_country(ctx, field, obj)
 
 		case "team":
 

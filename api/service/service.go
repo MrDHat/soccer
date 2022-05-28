@@ -60,6 +60,8 @@ func Init() Services {
 		),
 		player: api.NewPlayer(
 			playerRepo,
+			userRepo,
+			authHelper,
 		),
 	}
 }

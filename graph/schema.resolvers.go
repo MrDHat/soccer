@@ -23,7 +23,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input graphmodel.Upda
 }
 
 func (r *mutationResolver) UpdatePlayer(ctx context.Context, input graphmodel.UpdatePlayerInput) (*graphmodel.Player, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Services.Player().Update(ctx, input)
 }
 
 func (r *mutationResolver) MovePlayerToTransfer(ctx context.Context, input graphmodel.MovePlayerToTransferInput) (*graphmodel.Player, error) {
