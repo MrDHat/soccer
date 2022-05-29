@@ -30,8 +30,9 @@ const (
 	PlayerNotFound = "PlayerNotFound"
 
 	// tranfer errors
-	TransferPlayerIDEmpty = "TransferPlayerIDEmpty"
-	TransferAmountInvalid = "TransferAmountInvalid"
+	TransferPlayerIDEmpty         = "TransferPlayerIDEmpty"
+	TransferAmountInvalid         = "TransferAmountInvalid"
+	PlayerAlreadyBeingTransferred = "PlayerAlreadyBeingTransferred"
 )
 
 var ErrorCode = map[string]string{
@@ -45,16 +46,17 @@ var ErrorCode = map[string]string{
 	PlayerNotFound: "400003",
 
 	// 400 errors
-	InvalidRequestData:          "200000",
-	SignupInputNameEmpty:        "200001",
-	SignupInputEmailEmpty:       "200002",
-	SignupInputPasswordEmpty:    "200003",
-	SignupInputPasswordTooShort: "200004",
-	LoginInputEmailEmpty:        "200005",
-	LoginInputPasswordEmpty:     "200007",
-	UserAlreadyExists:           "200007",
-	TransferPlayerIDEmpty:       "200008",
-	TransferAmountInvalid:       "200009",
+	InvalidRequestData:            "200000",
+	SignupInputNameEmpty:          "200001",
+	SignupInputEmailEmpty:         "200002",
+	SignupInputPasswordEmpty:      "200003",
+	SignupInputPasswordTooShort:   "200004",
+	LoginInputEmailEmpty:          "200005",
+	LoginInputPasswordEmpty:       "200007",
+	UserAlreadyExists:             "200007",
+	TransferPlayerIDEmpty:         "200008",
+	TransferAmountInvalid:         "200009",
+	PlayerAlreadyBeingTransferred: "200010",
 
 	// 401 errors
 	Unauthorized:         "300000",
@@ -85,6 +87,7 @@ var ErrorString = map[string]string{
 
 	PlayerNotFound: "The player could not be found",
 
-	TransferPlayerIDEmpty: "The player id cannot be empty",
-	TransferAmountInvalid: "The amount is invalid",
+	TransferPlayerIDEmpty:         "The player id cannot be empty",
+	TransferAmountInvalid:         "The amount is invalid",
+	PlayerAlreadyBeingTransferred: "The player is already being transferred",
 }

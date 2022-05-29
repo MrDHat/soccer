@@ -73,16 +73,17 @@ func (svc *transfer) Create(ctx context.Context, input graphmodel.CreateTransfer
 	if p.Team.ID != user.Team.ID {
 		return nil, apiutils.HandleError(ctx, constants.Unauthorized, errors.New(constants.Unauthorized))
 	}
-
-	// TODO: verify if the player is already being transferred
+	if p.TransferStatus == string(constants.PlayerTransferStatusOnSale) {
+		return nil, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerAlreadyBeingTransferred))
+	}
 
 	logger.Log.Info("creating player transfer")
-	t := models.PlayerTransfer{
+	t := &models.PlayerTransfer{
 		AmountInDollars: input.AmountInDollars,
 		OwnerTeam:       p.Team,
 		Player:          p,
 	}
-	err = svc.playerTransferRepo.Create(ctx, &t)
+	err = svc.playerTransferRepo.Create(ctx, t)
 	if err != nil {
 		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
 	}
