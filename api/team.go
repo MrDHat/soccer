@@ -19,6 +19,7 @@ import (
 type Team interface {
 	My(ctx context.Context) (*graphmodel.Team, error)
 	Update(ctx context.Context, input graphmodel.UpdateTeamInput) (*graphmodel.Team, error)
+	GetForPlayerTransfer(ctx context.Context, obj *graphmodel.PlayerTransfer) (*graphmodel.Team, error)
 }
 
 type team struct {
@@ -111,6 +112,26 @@ func (svc *team) Update(ctx context.Context, input graphmodel.UpdateTeamInput) (
 	}
 
 	return team.Serialize(), nil
+}
+
+func (svc *team) GetForPlayerTransfer(ctx context.Context, obj *graphmodel.PlayerTransfer) (*graphmodel.Team, error) {
+	t, err := svc.teamRepo.FindOne(ctx, models.TeamQuery{
+		Team: models.Team{
+			Base: models.Base{
+				ID: *obj.OwnerTeamID,
+			},
+		},
+	})
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.PlayerNotFound))
+		}
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+
+	// set it to zero for security reasons
+	t.RemainingBudgetInDollars = 0
+	return t.Serialize(), nil
 }
 
 func NewTeam(

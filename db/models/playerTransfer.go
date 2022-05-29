@@ -33,10 +33,10 @@ func (m *PlayerTransfer) Serialize() *graphmodel.PlayerTransfer {
 		Status:          stringToPlayerTransferStatusEnum(&m.Status),
 	}
 	if m.OwnerTeam != nil {
-		res.OwnerTeam = m.OwnerTeam.Serialize()
+		res.OwnerTeamID = &m.OwnerTeam.ID
 	}
 	if m.Player != nil {
-		res.Player = m.Player.Serialize()
+		res.PlayerID = m.Player.ID
 	}
 	return res
 }

@@ -70,14 +70,6 @@ type PlayerList struct {
 	Data         []*Player `json:"data"`
 }
 
-type PlayerTransfer struct {
-	ID              int64                 `json:"id"`
-	Player          *Player               `json:"player"`
-	AmountInDollars *int64                `json:"amountInDollars"`
-	OwnerTeam       *Team                 `json:"ownerTeam"`
-	Status          *PlayerTransferStatus `json:"status"`
-}
-
 type PlayerTransferList struct {
 	TotalPage    *int64            `json:"totalPage"`
 	CurrentPage  *int64            `json:"currentPage"`

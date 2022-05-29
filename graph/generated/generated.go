@@ -37,6 +37,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Mutation() MutationResolver
+	PlayerTransfer() PlayerTransferResolver
 	Query() QueryResolver
 	Team() TeamResolver
 }
@@ -84,7 +85,9 @@ type ComplexityRoot struct {
 		AmountInDollars func(childComplexity int) int
 		ID              func(childComplexity int) int
 		OwnerTeam       func(childComplexity int) int
+		OwnerTeamID     func(childComplexity int) int
 		Player          func(childComplexity int) int
+		PlayerID        func(childComplexity int) int
 		Status          func(childComplexity int) int
 	}
 
@@ -133,6 +136,11 @@ type MutationResolver interface {
 	UpdatePlayer(ctx context.Context, input graphmodel.UpdatePlayerInput) (*graphmodel.Player, error)
 	BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.PlayerTransfer, error)
 	CreateTransfer(ctx context.Context, input graphmodel.CreateTransferInput) (*graphmodel.PlayerTransfer, error)
+}
+type PlayerTransferResolver interface {
+	Player(ctx context.Context, obj *graphmodel.PlayerTransfer) (*graphmodel.Player, error)
+
+	OwnerTeam(ctx context.Context, obj *graphmodel.PlayerTransfer) (*graphmodel.Team, error)
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*graphmodel.User, error)
@@ -370,12 +378,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlayerTransfer.OwnerTeam(childComplexity), true
 
+	case "PlayerTransfer.ownerTeamId":
+		if e.complexity.PlayerTransfer.OwnerTeamID == nil {
+			break
+		}
+
+		return e.complexity.PlayerTransfer.OwnerTeamID(childComplexity), true
+
 	case "PlayerTransfer.player":
 		if e.complexity.PlayerTransfer.Player == nil {
 			break
 		}
 
 		return e.complexity.PlayerTransfer.Player(childComplexity), true
+
+	case "PlayerTransfer.playerId":
+		if e.complexity.PlayerTransfer.PlayerID == nil {
+			break
+		}
+
+		return e.complexity.PlayerTransfer.PlayerID(childComplexity), true
 
 	case "PlayerTransfer.status":
 		if e.complexity.PlayerTransfer.Status == nil {
@@ -732,8 +754,10 @@ input UpdatePlayerInput {
 `, BuiltIn: false},
 	{Name: "../schema/playerTransfer.graphqls", Input: `type PlayerTransfer {
   id: ID!
+  playerId: ID
   player: Player
   amountInDollars: Int
+  ownerTeamId: ID
   ownerTeam: Team
   status: PlayerTransferStatus
 }
@@ -1517,10 +1541,14 @@ func (ec *executionContext) fieldContext_Mutation_buyPlayer(ctx context.Context,
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_PlayerTransfer_id(ctx, field)
+			case "playerId":
+				return ec.fieldContext_PlayerTransfer_playerId(ctx, field)
 			case "player":
 				return ec.fieldContext_PlayerTransfer_player(ctx, field)
 			case "amountInDollars":
 				return ec.fieldContext_PlayerTransfer_amountInDollars(ctx, field)
+			case "ownerTeamId":
+				return ec.fieldContext_PlayerTransfer_ownerTeamId(ctx, field)
 			case "ownerTeam":
 				return ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
 			case "status":
@@ -1584,10 +1612,14 @@ func (ec *executionContext) fieldContext_Mutation_createTransfer(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_PlayerTransfer_id(ctx, field)
+			case "playerId":
+				return ec.fieldContext_PlayerTransfer_playerId(ctx, field)
 			case "player":
 				return ec.fieldContext_PlayerTransfer_player(ctx, field)
 			case "amountInDollars":
 				return ec.fieldContext_PlayerTransfer_amountInDollars(ctx, field)
+			case "ownerTeamId":
+				return ec.fieldContext_PlayerTransfer_ownerTeamId(ctx, field)
 			case "ownerTeam":
 				return ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
 			case "status":
@@ -2317,6 +2349,47 @@ func (ec *executionContext) fieldContext_PlayerTransfer_id(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _PlayerTransfer_playerId(ctx context.Context, field graphql.CollectedField, obj *graphmodel.PlayerTransfer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlayerTransfer_playerId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlayerID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlayerTransfer_playerId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlayerTransfer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PlayerTransfer_player(ctx context.Context, field graphql.CollectedField, obj *graphmodel.PlayerTransfer) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlayerTransfer_player(ctx, field)
 	if err != nil {
@@ -2331,7 +2404,7 @@ func (ec *executionContext) _PlayerTransfer_player(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Player, nil
+		return ec.resolvers.PlayerTransfer().Player(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2349,8 +2422,8 @@ func (ec *executionContext) fieldContext_PlayerTransfer_player(ctx context.Conte
 	fc = &graphql.FieldContext{
 		Object:     "PlayerTransfer",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -2423,6 +2496,47 @@ func (ec *executionContext) fieldContext_PlayerTransfer_amountInDollars(ctx cont
 	return fc, nil
 }
 
+func (ec *executionContext) _PlayerTransfer_ownerTeamId(ctx context.Context, field graphql.CollectedField, obj *graphmodel.PlayerTransfer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlayerTransfer_ownerTeamId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OwnerTeamID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOID2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlayerTransfer_ownerTeamId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlayerTransfer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PlayerTransfer_ownerTeam(ctx context.Context, field graphql.CollectedField, obj *graphmodel.PlayerTransfer) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
 	if err != nil {
@@ -2437,7 +2551,7 @@ func (ec *executionContext) _PlayerTransfer_ownerTeam(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.OwnerTeam, nil
+		return ec.resolvers.PlayerTransfer().OwnerTeam(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2455,8 +2569,8 @@ func (ec *executionContext) fieldContext_PlayerTransfer_ownerTeam(ctx context.Co
 	fc = &graphql.FieldContext{
 		Object:     "PlayerTransfer",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -2687,10 +2801,14 @@ func (ec *executionContext) fieldContext_PlayerTransferList_data(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_PlayerTransfer_id(ctx, field)
+			case "playerId":
+				return ec.fieldContext_PlayerTransfer_playerId(ctx, field)
 			case "player":
 				return ec.fieldContext_PlayerTransfer_player(ctx, field)
 			case "amountInDollars":
 				return ec.fieldContext_PlayerTransfer_amountInDollars(ctx, field)
+			case "ownerTeamId":
+				return ec.fieldContext_PlayerTransfer_ownerTeamId(ctx, field)
 			case "ownerTeam":
 				return ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
 			case "status":
@@ -6048,20 +6166,54 @@ func (ec *executionContext) _PlayerTransfer(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._PlayerTransfer_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "playerId":
+
+			out.Values[i] = ec._PlayerTransfer_playerId(ctx, field, obj)
+
 		case "player":
+			field := field
 
-			out.Values[i] = ec._PlayerTransfer_player(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlayerTransfer_player(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "amountInDollars":
 
 			out.Values[i] = ec._PlayerTransfer_amountInDollars(ctx, field, obj)
 
+		case "ownerTeamId":
+
+			out.Values[i] = ec._PlayerTransfer_ownerTeamId(ctx, field, obj)
+
 		case "ownerTeam":
+			field := field
 
-			out.Values[i] = ec._PlayerTransfer_ownerTeam(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlayerTransfer_ownerTeam(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "status":
 
 			out.Values[i] = ec._PlayerTransfer_status(ctx, field, obj)
@@ -7209,6 +7361,32 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOID2int64(ctx context.Context, v interface{}) (int64, error) {
+	res, err := graphql.UnmarshalInt64(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	res := graphql.MarshalInt64(v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOID2ᚖint64(ctx context.Context, v interface{}) (*int64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt64(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖint64(ctx context.Context, sel ast.SelectionSet, v *int64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt64(*v)
 	return res
 }
 

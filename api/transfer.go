@@ -92,7 +92,6 @@ func (svc *transfer) Create(ctx context.Context, input graphmodel.CreateTransfer
 	}
 	res := t.Serialize()
 	p.TransferStatus = string(constants.PlayerTransferStatusOnSale)
-	res.Player = p.Serialize()
 
 	return res, nil
 

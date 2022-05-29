@@ -20,6 +20,7 @@ import (
 type Player interface {
 	ListForTeam(ctx context.Context, obj *graphmodel.Team, input *graphmodel.TeamPlayerListInput) (*graphmodel.PlayerList, error)
 	Update(ctx context.Context, input graphmodel.UpdatePlayerInput) (*graphmodel.Player, error)
+	GetForPlayerTransfer(ctx context.Context, obj *graphmodel.PlayerTransfer) (*graphmodel.Player, error)
 }
 
 type player struct {
@@ -133,6 +134,26 @@ func (svc *player) Update(ctx context.Context, input graphmodel.UpdatePlayerInpu
 		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
 	}
 
+	return p.Serialize(), nil
+}
+
+func (svc *player) GetForPlayerTransfer(ctx context.Context, obj *graphmodel.PlayerTransfer) (*graphmodel.Player, error) {
+	p, err := svc.playerRepo.FindOne(ctx, models.PlayerQuery{
+		Player: models.Player{
+			Base: models.Base{
+				ID: obj.PlayerID,
+			},
+		},
+	})
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.PlayerNotFound))
+		}
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+
+	// set it to zero for security reasons
+	p.CurrentValueInDollars = 0
 	return p.Serialize(), nil
 }
 
