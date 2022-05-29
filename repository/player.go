@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"soccer-manager/constants"
@@ -9,6 +10,7 @@ import (
 	"soccer-manager/db/models"
 	"soccer-manager/logger"
 
+	"github.com/astaxie/beego/orm"
 	"github.com/thoas/go-funk"
 )
 
@@ -16,6 +18,7 @@ type PlayerRepo interface {
 	FindOne(ctx context.Context, query models.PlayerQuery) (*models.Player, error)
 	FindAll(ctx context.Context, query models.PlayerQuery, fetchRelated bool, returnCount bool) ([]*models.Player, int64, error)
 	Update(ctx context.Context, doc *models.Player, fieldsToUpdate []string) error
+	TotalValInDollars(ctx context.Context, teamID int64) (int64, error)
 }
 
 type playerRepo struct {
@@ -121,6 +124,29 @@ func (repo *playerRepo) Update(ctx context.Context, doc *models.Player, fieldsTo
 	}
 
 	return nil
+}
+
+func (repo *playerRepo) TotalValInDollars(ctx context.Context, teamID int64) (int64, error) {
+	groupError := "TOTAL_VAL_IN_DOLLARS"
+
+	var res orm.ParamsList
+	_, err := repo.dbInstance.GetReadableDB().Raw(`
+		select SUM(current_value_in_dollars)
+		from players
+		WHERE team_id = ?
+	`, teamID).ValuesFlat(&res)
+	if err != nil {
+		logger.Log.WithError(err).Error(groupError)
+		return 0, err
+	}
+	valInStr := res[0].(string)
+
+	val, err := strconv.ParseInt(valInStr, 10, 64)
+	if err != nil {
+		logger.Log.WithError(err).Error(groupError)
+		return 0, err
+	}
+	return val, nil
 }
 
 func NewPlayerRepo(

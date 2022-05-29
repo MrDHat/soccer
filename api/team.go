@@ -20,11 +20,13 @@ type Team interface {
 	My(ctx context.Context) (*graphmodel.Team, error)
 	Update(ctx context.Context, input graphmodel.UpdateTeamInput) (*graphmodel.Team, error)
 	GetForPlayerTransfer(ctx context.Context, obj *graphmodel.PlayerTransfer) (*graphmodel.Team, error)
+	ValueInDollars(ctx context.Context, obj *graphmodel.Team) (*int64, error)
 }
 
 type team struct {
 	userRepo   repository.UserRepo
 	teamRepo   repository.TeamRepo
+	playerRepo repository.PlayerRepo
 	authHelper helpers.Auth
 }
 
@@ -134,14 +136,24 @@ func (svc *team) GetForPlayerTransfer(ctx context.Context, obj *graphmodel.Playe
 	return t.Serialize(), nil
 }
 
+func (svc *team) ValueInDollars(ctx context.Context, obj *graphmodel.Team) (*int64, error) {
+	value, err := svc.playerRepo.TotalValInDollars(ctx, obj.ID)
+	if err != nil {
+		return &value, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+	return &value, nil
+}
+
 func NewTeam(
 	userRepo repository.UserRepo,
 	teamRepo repository.TeamRepo,
+	playerRepo repository.PlayerRepo,
 	authHelper helpers.Auth,
 ) Team {
 	return &team{
 		userRepo:   userRepo,
 		teamRepo:   teamRepo,
+		playerRepo: playerRepo,
 		authHelper: authHelper,
 	}
 }

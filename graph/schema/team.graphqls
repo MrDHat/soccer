@@ -28,6 +28,10 @@ type Team {
   """
   user: User
   """
+  Value of the tea,
+  """
+  valueInDollars: Int
+  """
   The players of the team
   """
   players(input: TeamPlayerListInput): PlayerList

@@ -64,6 +64,7 @@ func Init() Services {
 		team: api.NewTeam(
 			userRepo,
 			teamRepo,
+			playerRepo,
 			authHelper,
 		),
 		player: api.NewPlayer(

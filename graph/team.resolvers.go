@@ -9,6 +9,10 @@ import (
 	graphmodel "soccer-manager/graph/model"
 )
 
+func (r *teamResolver) ValueInDollars(ctx context.Context, obj *graphmodel.Team) (*int64, error) {
+	return r.Services.Team().ValueInDollars(ctx, obj)
+}
+
 func (r *teamResolver) Players(ctx context.Context, obj *graphmodel.Team, input *graphmodel.TeamPlayerListInput) (*graphmodel.PlayerList, error) {
 	return r.Services.Player().ListForTeam(ctx, obj, input)
 }

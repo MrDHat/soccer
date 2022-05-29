@@ -105,14 +105,15 @@ type ComplexityRoot struct {
 	}
 
 	Team struct {
-		Budget    func(childComplexity int) int
-		Country   func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		Players   func(childComplexity int, input *graphmodel.TeamPlayerListInput) int
-		UpdatedAt func(childComplexity int) int
-		User      func(childComplexity int) int
+		Budget         func(childComplexity int) int
+		Country        func(childComplexity int) int
+		CreatedAt      func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Name           func(childComplexity int) int
+		Players        func(childComplexity int, input *graphmodel.TeamPlayerListInput) int
+		UpdatedAt      func(childComplexity int) int
+		User           func(childComplexity int) int
+		ValueInDollars func(childComplexity int) int
 	}
 
 	TeamBudget struct {
@@ -148,6 +149,7 @@ type QueryResolver interface {
 	PlayerTransfers(ctx context.Context, input *graphmodel.PlayerTransferListInput) (*graphmodel.PlayerTransferList, error)
 }
 type TeamResolver interface {
+	ValueInDollars(ctx context.Context, obj *graphmodel.Team) (*int64, error)
 	Players(ctx context.Context, obj *graphmodel.Team, input *graphmodel.TeamPlayerListInput) (*graphmodel.PlayerList, error)
 }
 
@@ -521,6 +523,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.User(childComplexity), true
 
+	case "Team.valueInDollars":
+		if e.complexity.Team.ValueInDollars == nil {
+			break
+		}
+
+		return e.complexity.Team.ValueInDollars(childComplexity), true
+
 	case "TeamBudget.remainingInDollars":
 		if e.complexity.TeamBudget.RemainingInDollars == nil {
 			break
@@ -841,6 +850,10 @@ type Mutation {
   The user who owns the team
   """
   user: User
+  """
+  Value of the tea,
+  """
+  valueInDollars: Int
   """
   The players of the team
   """
@@ -1401,6 +1414,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_budget(ctx, field)
 			case "user":
 				return ec.fieldContext_Team_user(ctx, field)
+			case "valueInDollars":
+				return ec.fieldContext_Team_valueInDollars(ctx, field)
 			case "players":
 				return ec.fieldContext_Team_players(ctx, field)
 			}
@@ -2105,6 +2120,8 @@ func (ec *executionContext) fieldContext_Player_team(ctx context.Context, field 
 				return ec.fieldContext_Team_budget(ctx, field)
 			case "user":
 				return ec.fieldContext_Team_user(ctx, field)
+			case "valueInDollars":
+				return ec.fieldContext_Team_valueInDollars(ctx, field)
 			case "players":
 				return ec.fieldContext_Team_players(ctx, field)
 			}
@@ -2587,6 +2604,8 @@ func (ec *executionContext) fieldContext_PlayerTransfer_ownerTeam(ctx context.Co
 				return ec.fieldContext_Team_budget(ctx, field)
 			case "user":
 				return ec.fieldContext_Team_user(ctx, field)
+			case "valueInDollars":
+				return ec.fieldContext_Team_valueInDollars(ctx, field)
 			case "players":
 				return ec.fieldContext_Team_players(ctx, field)
 			}
@@ -2931,6 +2950,8 @@ func (ec *executionContext) fieldContext_Query_myTeam(ctx context.Context, field
 				return ec.fieldContext_Team_budget(ctx, field)
 			case "user":
 				return ec.fieldContext_Team_user(ctx, field)
+			case "valueInDollars":
+				return ec.fieldContext_Team_valueInDollars(ctx, field)
 			case "players":
 				return ec.fieldContext_Team_players(ctx, field)
 			}
@@ -3439,6 +3460,47 @@ func (ec *executionContext) fieldContext_Team_user(ctx context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_valueInDollars(ctx context.Context, field graphql.CollectedField, obj *graphmodel.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_valueInDollars(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().ValueInDollars(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_valueInDollars(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_players(ctx context.Context, field graphql.CollectedField, obj *graphmodel.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_players(ctx, field)
 	if err != nil {
@@ -3800,6 +3862,8 @@ func (ec *executionContext) fieldContext_User_team(ctx context.Context, field gr
 				return ec.fieldContext_Team_budget(ctx, field)
 			case "user":
 				return ec.fieldContext_Team_user(ctx, field)
+			case "valueInDollars":
+				return ec.fieldContext_Team_valueInDollars(ctx, field)
 			case "players":
 				return ec.fieldContext_Team_players(ctx, field)
 			}
@@ -6418,6 +6482,23 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._Team_user(ctx, field, obj)
 
+		case "valueInDollars":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_valueInDollars(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "players":
 			field := field
 
