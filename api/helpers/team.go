@@ -15,7 +15,7 @@ type Team interface {
 
 type team struct{}
 
-func (h *team) createRandomPlayer(playerType string) *models.Player {
+func (h *team) createRandomPlayer(playerType constants.PlayerType) *models.Player {
 	fName := utils.RandomName()
 	if len(strings.Split(fName, " ")) > 1 {
 		fName = strings.Split(fName, " ")[0]
@@ -28,8 +28,9 @@ func (h *team) createRandomPlayer(playerType string) *models.Player {
 		FirstName:             fName,
 		LastName:              lName,
 		Age:                   utils.RandomAge(),
+		Country:               utils.RandomCountry(),
 		CurrentValueInDollars: int64(constants.DefaultPlayerAmount),
-		PlayerType:            playerType,
+		PlayerType:            string(playerType),
 		TransferStatus:        string(constants.PlayerTransferStatusOwned),
 	}
 

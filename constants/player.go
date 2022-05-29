@@ -1,5 +1,7 @@
 package constants
 
+type PlayerType string
+
 var (
 	// DefaultPlayerAmount is the default amount in dollars a player is worth
 	DefaultPlayerAmount = 1000000
@@ -7,12 +9,12 @@ var (
 	PlayerMinAge = 18
 	PlayerMaxAge = 40
 
-	PlayerTypeGoalKeeper = "goalkeeper"
-	PlayerTypeDefender   = "defender"
-	PlayerTypeMidfielder = "midfielder"
-	PlayerTypeAttacker   = "attacker"
+	PlayerTypeGoalKeeper PlayerType = "goalkeeper"
+	PlayerTypeDefender   PlayerType = "defender"
+	PlayerTypeMidfielder PlayerType = "midfielder"
+	PlayerTypeAttacker   PlayerType = "attacker"
 
-	DefaultTeamPlayerMapping = map[string]int{
+	DefaultTeamPlayerMapping = map[PlayerType]int{
 		PlayerTypeGoalKeeper: 3,
 		PlayerTypeDefender:   6,
 		PlayerTypeMidfielder: 6,
