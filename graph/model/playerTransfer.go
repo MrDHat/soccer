@@ -6,4 +6,7 @@ type PlayerTransfer struct {
 	AmountInDollars *int64                `json:"amountInDollars"`
 	OwnerTeamID     *int64                `json:"ownerTeamId"`
 	Status          *PlayerTransferStatus `json:"status"`
+	CreatedAt       *int64                `json:"createdAt"`
+	UpdatedAt       *int64                `json:"updatedAt"`
+	CompletedAt     *int64                `json:"completedAt"`
 }

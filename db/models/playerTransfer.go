@@ -10,6 +10,7 @@ type PlayerTransfer struct {
 	Base
 	AmountInDollars int64   `json:"amount_in_dollars" orm:"column(amount_in_dollars)"`
 	Status          string  `json:"status" orm:"column(status)"`
+	CompletedAt     *int64  `json:"completed_at" orm:"column(completed_at)"`
 	OwnerTeam       *Team   `json:"owner_team" orm:"rel(fk)"`
 	Player          *Player `json:"player" orm:"rel(fk)"`
 }
@@ -31,6 +32,9 @@ func (m *PlayerTransfer) Serialize() *graphmodel.PlayerTransfer {
 		ID:              m.ID,
 		AmountInDollars: &m.AmountInDollars,
 		Status:          stringToPlayerTransferStatusEnum(&m.Status),
+		CreatedAt:       m.CreatedAt,
+		UpdatedAt:       m.UpdatedAt,
+		CompletedAt:     m.CompletedAt,
 	}
 	if m.OwnerTeam != nil {
 		res.OwnerTeamID = &m.OwnerTeam.ID

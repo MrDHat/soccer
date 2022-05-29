@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"soccer-manager/graph/generated"
 	graphmodel "soccer-manager/graph/model"
 )
@@ -27,7 +26,7 @@ func (r *mutationResolver) UpdatePlayer(ctx context.Context, input graphmodel.Up
 }
 
 func (r *mutationResolver) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.PlayerTransfer, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Services.Transfer().BuyPlayer(ctx, input)
 }
 
 func (r *mutationResolver) CreateTransfer(ctx context.Context, input graphmodel.CreateTransferInput) (*graphmodel.PlayerTransfer, error) {

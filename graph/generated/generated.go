@@ -83,12 +83,15 @@ type ComplexityRoot struct {
 
 	PlayerTransfer struct {
 		AmountInDollars func(childComplexity int) int
+		CompletedAt     func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
 		ID              func(childComplexity int) int
 		OwnerTeam       func(childComplexity int) int
 		OwnerTeamID     func(childComplexity int) int
 		Player          func(childComplexity int) int
 		PlayerID        func(childComplexity int) int
 		Status          func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
 	}
 
 	PlayerTransferList struct {
@@ -366,6 +369,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlayerTransfer.AmountInDollars(childComplexity), true
 
+	case "PlayerTransfer.completedAt":
+		if e.complexity.PlayerTransfer.CompletedAt == nil {
+			break
+		}
+
+		return e.complexity.PlayerTransfer.CompletedAt(childComplexity), true
+
+	case "PlayerTransfer.createdAt":
+		if e.complexity.PlayerTransfer.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.PlayerTransfer.CreatedAt(childComplexity), true
+
 	case "PlayerTransfer.id":
 		if e.complexity.PlayerTransfer.ID == nil {
 			break
@@ -407,6 +424,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlayerTransfer.Status(childComplexity), true
+
+	case "PlayerTransfer.updatedAt":
+		if e.complexity.PlayerTransfer.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.PlayerTransfer.UpdatedAt(childComplexity), true
 
 	case "PlayerTransferList.currentPage":
 		if e.complexity.PlayerTransferList.CurrentPage == nil {
@@ -768,6 +792,9 @@ input UpdatePlayerInput {
   amountInDollars: Int
   ownerTeamId: ID
   ownerTeam: Team
+  completedAt: Int
+  createdAt: Int
+  updatedAt: Int
   status: PlayerTransferStatus
 }
 
@@ -1566,6 +1593,12 @@ func (ec *executionContext) fieldContext_Mutation_buyPlayer(ctx context.Context,
 				return ec.fieldContext_PlayerTransfer_ownerTeamId(ctx, field)
 			case "ownerTeam":
 				return ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_PlayerTransfer_completedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_PlayerTransfer_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_PlayerTransfer_updatedAt(ctx, field)
 			case "status":
 				return ec.fieldContext_PlayerTransfer_status(ctx, field)
 			}
@@ -1637,6 +1670,12 @@ func (ec *executionContext) fieldContext_Mutation_createTransfer(ctx context.Con
 				return ec.fieldContext_PlayerTransfer_ownerTeamId(ctx, field)
 			case "ownerTeam":
 				return ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_PlayerTransfer_completedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_PlayerTransfer_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_PlayerTransfer_updatedAt(ctx, field)
 			case "status":
 				return ec.fieldContext_PlayerTransfer_status(ctx, field)
 			}
@@ -2615,6 +2654,129 @@ func (ec *executionContext) fieldContext_PlayerTransfer_ownerTeam(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _PlayerTransfer_completedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodel.PlayerTransfer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlayerTransfer_completedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CompletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlayerTransfer_completedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlayerTransfer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlayerTransfer_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphmodel.PlayerTransfer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlayerTransfer_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlayerTransfer_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlayerTransfer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlayerTransfer_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodel.PlayerTransfer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlayerTransfer_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlayerTransfer_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlayerTransfer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PlayerTransfer_status(ctx context.Context, field graphql.CollectedField, obj *graphmodel.PlayerTransfer) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlayerTransfer_status(ctx, field)
 	if err != nil {
@@ -2830,6 +2992,12 @@ func (ec *executionContext) fieldContext_PlayerTransferList_data(ctx context.Con
 				return ec.fieldContext_PlayerTransfer_ownerTeamId(ctx, field)
 			case "ownerTeam":
 				return ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_PlayerTransfer_completedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_PlayerTransfer_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_PlayerTransfer_updatedAt(ctx, field)
 			case "status":
 				return ec.fieldContext_PlayerTransfer_status(ctx, field)
 			}
@@ -6278,6 +6446,18 @@ func (ec *executionContext) _PlayerTransfer(ctx context.Context, sel ast.Selecti
 				return innerFunc(ctx)
 
 			})
+		case "completedAt":
+
+			out.Values[i] = ec._PlayerTransfer_completedAt(ctx, field, obj)
+
+		case "createdAt":
+
+			out.Values[i] = ec._PlayerTransfer_createdAt(ctx, field, obj)
+
+		case "updatedAt":
+
+			out.Values[i] = ec._PlayerTransfer_updatedAt(ctx, field, obj)
+
 		case "status":
 
 			out.Values[i] = ec._PlayerTransfer_status(ctx, field, obj)

@@ -24,3 +24,8 @@ func RandomAge() int64 {
 	rand.Seed(time.Now().UnixNano())
 	return int64(rand.Intn(constants.PlayerMaxAge-constants.PlayerMinAge+1) + constants.PlayerMinAge)
 }
+
+func RandomValuePercentage() int64 {
+	rand.Seed(time.Now().UnixNano())
+	return int64(rand.Intn(constants.PlayerMaxPercentageIncrease-constants.PlayerMinPercentageIncrease+1) + constants.PlayerMinPercentageIncrease)
+}

@@ -33,6 +33,10 @@ const (
 	TransferPlayerIDEmpty         = "TransferPlayerIDEmpty"
 	TransferAmountInvalid         = "TransferAmountInvalid"
 	PlayerAlreadyBeingTransferred = "PlayerAlreadyBeingTransferred"
+	PlayerTransferNotFound        = "PlayerTransferNotFound"
+	PlayerTransferOwnerTeamError  = "PlayerTransferOwnerTeamError"
+	PlayerTransferAlreadyComplete = "PlayerTransferAlreadyComplete"
+	PlayerTransferBudgetError     = "PlayerTransferBudgetError"
 )
 
 var ErrorCode = map[string]string{
@@ -57,6 +61,10 @@ var ErrorCode = map[string]string{
 	TransferPlayerIDEmpty:         "200008",
 	TransferAmountInvalid:         "200009",
 	PlayerAlreadyBeingTransferred: "200010",
+	PlayerTransferNotFound:        "200011",
+	PlayerTransferOwnerTeamError:  "200012",
+	PlayerTransferAlreadyComplete: "200013",
+	PlayerTransferBudgetError:     "200014",
 
 	// 401 errors
 	Unauthorized:         "300000",
@@ -90,4 +98,8 @@ var ErrorString = map[string]string{
 	TransferPlayerIDEmpty:         "The player id cannot be empty",
 	TransferAmountInvalid:         "The amount is invalid",
 	PlayerAlreadyBeingTransferred: "The player is already being transferred",
+	PlayerTransferNotFound:        "The player transfer could not be found",
+	PlayerTransferOwnerTeamError:  "The player transfer owner team is the same as buyer",
+	PlayerTransferAlreadyComplete: "The player transfer is already complete",
+	PlayerTransferBudgetError:     "The team doesn't have enough budget to complete the transfer",
 }

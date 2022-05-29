@@ -10,13 +10,15 @@ import (
 	"soccer-manager/db/models"
 	"soccer-manager/logger"
 
+	"github.com/astaxie/beego/orm"
 	"github.com/thoas/go-funk"
 )
 
 type PlayerTransferRepo interface {
 	Create(ctx context.Context, playerTransfer *models.PlayerTransfer) error
-	FindOne(ctx context.Context, query models.PlayerTransferQuery) (*models.PlayerTransfer, error)
+	FindOne(ctx context.Context, query models.PlayerTransferQuery, returnRelated bool) (*models.PlayerTransfer, error)
 	FindAll(ctx context.Context, query models.PlayerTransferQuery, fetchRelated bool, returnCount bool) ([]*models.PlayerTransfer, int64, error)
+	CompleteTransfer(ctx context.Context, doc *models.PlayerTransfer, newTeamID int64, newPlayerValue int64) error
 }
 
 type playerTransferRepo struct {
@@ -88,7 +90,7 @@ func (repo *playerTransferRepo) Create(ctx context.Context, playerTransfer *mode
 	return err
 }
 
-func (repo *playerTransferRepo) FindOne(ctx context.Context, query models.PlayerTransferQuery) (*models.PlayerTransfer, error) {
+func (repo *playerTransferRepo) FindOne(ctx context.Context, query models.PlayerTransferQuery, returnRelated bool) (*models.PlayerTransfer, error) {
 	var (
 		groupError = "FIND_ONE_PLAYER_TRANSFER"
 		db         = repo.db.GetReadableDB()
@@ -110,6 +112,10 @@ func (repo *playerTransferRepo) FindOne(ctx context.Context, query models.Player
 	}
 	if query.Player != nil && query.Player.ID != 0 {
 		qs = qs.Filter("player_id", query.Player.ID)
+	}
+
+	if returnRelated {
+		qs = qs.RelatedSel()
 	}
 
 	err := qs.One(transfer)
@@ -171,6 +177,109 @@ func (repo *playerTransferRepo) FindAll(ctx context.Context, query models.Player
 	}
 
 	return res, count, nil
+}
+
+func (repo *playerTransferRepo) CompleteTransfer(ctx context.Context, doc *models.PlayerTransfer, newTeamID int64, newPlayerValue int64) error {
+	var (
+		groupError = "COMPLETE_PLAYER_TRANSFER"
+		db         = repo.db.GetWritableDB()
+		nowTime    = time.Now().Unix()
+		amount     = doc.AmountInDollars
+		buyerTeam  = models.Team{
+			Base: models.Base{
+				ID: newTeamID,
+			},
+		}
+		sellerTeam = doc.OwnerTeam
+		player     = doc.Player
+	)
+
+	logger.Log.Info("begin transaction for completing player transfer")
+	err := db.BeginTx(ctx, &sql.TxOptions{
+		ReadOnly: false,
+	})
+	if err != nil {
+		rErr := db.Rollback()
+		if rErr != nil {
+			logger.Log.WithError(err).Error(groupError)
+			return err
+		}
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+
+	logger.Log.Info("deduct amount from the buyer team")
+	_, err = db.QueryTable(buyerTeam).Filter("id", buyerTeam.ID).Update(orm.Params{
+		"updated_at":                  nowTime,
+		"remaining_budget_in_dollars": orm.ColValue(orm.ColMinus, amount),
+	})
+	if err != nil {
+		rErr := db.Rollback()
+		if rErr != nil {
+			logger.Log.WithError(err).Error(groupError)
+			return err
+		}
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+
+	logger.Log.Info("transfer amount to the seller team")
+	_, err = db.QueryTable(sellerTeam).Filter("id", sellerTeam.ID).Update(orm.Params{
+		"updated_at":                  nowTime,
+		"remaining_budget_in_dollars": orm.ColValue(orm.ColAdd, amount),
+	})
+	if err != nil {
+		rErr := db.Rollback()
+		if rErr != nil {
+			logger.Log.WithError(err).Error(groupError)
+			return err
+		}
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+
+	logger.Log.Info("update player transfer status")
+	_, err = db.QueryTable(doc).Filter("id", doc.ID).Update(orm.Params{
+		"updated_at":   nowTime,
+		"status":       string(constants.TransferStatusComplete),
+		"completed_at": nowTime,
+	})
+	if err != nil {
+		rErr := db.Rollback()
+		if rErr != nil {
+			logger.Log.WithError(err).Error(groupError)
+			return err
+		}
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+
+	logger.Log.Info("update player data")
+	_, err = db.QueryTable(player).Filter("id", player.ID).Update(orm.Params{
+		"updated_at":               nowTime,
+		"team_id":                  newTeamID,
+		"transfer_status":          string(constants.PlayerTransferStatusOwned),
+		"current_value_in_dollars": newPlayerValue,
+	})
+	if err != nil {
+		rErr := db.Rollback()
+		if rErr != nil {
+			logger.Log.WithError(err).Error(groupError)
+			return err
+		}
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+
+	logger.Log.Info("committing transaction")
+	err = db.Commit()
+	if err != nil {
+		logger.Log.WithError(err).Error(groupError)
+		return err
+	}
+	logger.Log.Info("transaction done")
+
+	return nil
 }
 
 func NewPlayerTransferRepo(db db.DBInstance) PlayerTransferRepo {

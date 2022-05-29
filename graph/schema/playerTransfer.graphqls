@@ -5,6 +5,9 @@ type PlayerTransfer {
   amountInDollars: Int
   ownerTeamId: ID
   ownerTeam: Team
+  completedAt: Int
+  createdAt: Int
+  updatedAt: Int
   status: PlayerTransferStatus
 }
 

@@ -13,6 +13,7 @@ import (
 	graphmodel "soccer-manager/graph/model"
 	"soccer-manager/logger"
 	"soccer-manager/repository"
+	"soccer-manager/utils"
 
 	"github.com/astaxie/beego/orm"
 )
@@ -20,6 +21,7 @@ import (
 type Transfer interface {
 	Create(ctx context.Context, input graphmodel.CreateTransferInput) (*graphmodel.PlayerTransfer, error)
 	List(ctx context.Context, input *graphmodel.PlayerTransferListInput) (*graphmodel.PlayerTransferList, error)
+	BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.PlayerTransfer, error)
 }
 
 type transfer struct {
@@ -166,6 +168,67 @@ func (svc *transfer) List(ctx context.Context, input *graphmodel.PlayerTransferL
 	}
 
 	return res, nil
+}
+
+func (svc *transfer) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.PlayerTransfer, error) {
+	logger.Log.Info("authenticating user")
+	userID, isAuthed := svc.authHelper.IsAuthorized(ctx, 0)
+	if !isAuthed {
+		return nil, apiutils.HandleError(ctx, constants.Unauthorized, errors.New(constants.Unauthorized))
+	}
+
+	logger.Log.Info("getting user by id")
+	user, err := svc.userRepo.FindOne(ctx, models.UserQuery{
+		User: models.User{
+			Base: models.Base{
+				ID: userID,
+			},
+		},
+	}, true)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.UserNotFound))
+		}
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+
+	logger.Log.Info("getting player transfer by id")
+	t, err := svc.playerTransferRepo.FindOne(ctx, models.PlayerTransferQuery{
+		PlayerTransfer: models.PlayerTransfer{
+			Base: models.Base{
+				ID: input.PlayerTransferID,
+			},
+		},
+	}, true)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.PlayerTransferNotFound))
+		}
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+
+	if t.OwnerTeam.ID == user.Team.ID {
+		return nil, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerTransferOwnerTeamError))
+	}
+
+	if t.Status != string(constants.TransferStatusPending) {
+		return nil, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerTransferAlreadyComplete))
+	}
+
+	if user.Team.RemainingBudgetInDollars < t.AmountInDollars {
+		return nil, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerTransferBudgetError))
+	}
+
+	logger.Log.Info("initiating player transfer")
+	playervalIncreasePercent := utils.RandomValuePercentage()
+	newPlayerValue := t.Player.CurrentValueInDollars + (t.Player.CurrentValueInDollars*playervalIncreasePercent)/100
+	err = svc.playerTransferRepo.CompleteTransfer(ctx, t, user.Team.ID, newPlayerValue)
+	if err != nil {
+		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+	}
+	t.Status = string(constants.TransferStatusComplete)
+
+	return t.Serialize(), nil
 }
 
 func NewTransfer(

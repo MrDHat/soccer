@@ -20,4 +20,7 @@ var (
 		PlayerTypeMidfielder: 6,
 		PlayerTypeAttacker:   5,
 	}
+
+	PlayerMinPercentageIncrease = 10
+	PlayerMaxPercentageIncrease = 100
 )
