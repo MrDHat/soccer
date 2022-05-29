@@ -21,7 +21,7 @@ import (
 type Transfer interface {
 	Create(ctx context.Context, input graphmodel.CreateTransferInput) (*graphmodel.PlayerTransfer, error)
 	List(ctx context.Context, input *graphmodel.PlayerTransferListInput) (*graphmodel.PlayerTransferList, error)
-	BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.PlayerTransfer, error)
+	BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (bool, error)
 }
 
 type transfer struct {
@@ -170,11 +170,11 @@ func (svc *transfer) List(ctx context.Context, input *graphmodel.PlayerTransferL
 	return res, nil
 }
 
-func (svc *transfer) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.PlayerTransfer, error) {
+func (svc *transfer) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (bool, error) {
 	logger.Log.Info("authenticating user")
 	userID, isAuthed := svc.authHelper.IsAuthorized(ctx, 0)
 	if !isAuthed {
-		return nil, apiutils.HandleError(ctx, constants.Unauthorized, errors.New(constants.Unauthorized))
+		return false, apiutils.HandleError(ctx, constants.Unauthorized, errors.New(constants.Unauthorized))
 	}
 
 	logger.Log.Info("getting user by id")
@@ -187,9 +187,9 @@ func (svc *transfer) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerIn
 	}, true)
 	if err != nil {
 		if err == orm.ErrNoRows {
-			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.UserNotFound))
+			return false, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.UserNotFound))
 		}
-		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+		return false, apiutils.HandleError(ctx, constants.InternalServerError, err)
 	}
 
 	logger.Log.Info("getting player transfer by id")
@@ -202,21 +202,21 @@ func (svc *transfer) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerIn
 	}, true)
 	if err != nil {
 		if err == orm.ErrNoRows {
-			return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.PlayerTransferNotFound))
+			return false, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.PlayerTransferNotFound))
 		}
-		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+		return false, apiutils.HandleError(ctx, constants.InternalServerError, err)
 	}
 
 	if t.OwnerTeam.ID == user.Team.ID {
-		return nil, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerTransferOwnerTeamError))
+		return false, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerTransferOwnerTeamError))
 	}
 
 	if t.Status != string(constants.TransferStatusPending) {
-		return nil, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerTransferAlreadyComplete))
+		return false, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerTransferAlreadyComplete))
 	}
 
 	if user.Team.RemainingBudgetInDollars < t.AmountInDollars {
-		return nil, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerTransferBudgetError))
+		return false, apiutils.HandleError(ctx, constants.InvalidRequestData, errors.New(constants.PlayerTransferBudgetError))
 	}
 
 	logger.Log.Info("initiating player transfer")
@@ -224,11 +224,10 @@ func (svc *transfer) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerIn
 	newPlayerValue := t.Player.CurrentValueInDollars + (t.Player.CurrentValueInDollars*playervalIncreasePercent)/100
 	err = svc.playerTransferRepo.CompleteTransfer(ctx, t, user.Team.ID, newPlayerValue)
 	if err != nil {
-		return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+		return false, apiutils.HandleError(ctx, constants.InternalServerError, err)
 	}
-	t.Status = string(constants.TransferStatusComplete)
 
-	return t.Serialize(), nil
+	return true, nil
 }
 
 func NewTransfer(

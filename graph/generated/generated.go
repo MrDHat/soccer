@@ -138,7 +138,7 @@ type MutationResolver interface {
 	Login(ctx context.Context, input graphmodel.LoginInput) (*graphmodel.LoginResponse, error)
 	UpdateTeam(ctx context.Context, input graphmodel.UpdateTeamInput) (*graphmodel.Team, error)
 	UpdatePlayer(ctx context.Context, input graphmodel.UpdatePlayerInput) (*graphmodel.Player, error)
-	BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.PlayerTransfer, error)
+	BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (bool, error)
 	CreateTransfer(ctx context.Context, input graphmodel.CreateTransferInput) (*graphmodel.PlayerTransfer, error)
 }
 type PlayerTransferResolver interface {
@@ -844,7 +844,7 @@ type Mutation {
   updateTeam(input: UpdateTeamInput!): Team!
 
   updatePlayer(input: UpdatePlayerInput!): Player!
-  buyPlayer(input: BuyPlayerInput!): PlayerTransfer!
+  buyPlayer(input: BuyPlayerInput!): Boolean!
   createTransfer(input: CreateTransferInput!): PlayerTransfer!
 }
 `, BuiltIn: false},
@@ -1568,9 +1568,9 @@ func (ec *executionContext) _Mutation_buyPlayer(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*graphmodel.PlayerTransfer)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNPlayerTransfer2ᚖsoccerᚑmanagerᚋgraphᚋmodelᚐPlayerTransfer(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_buyPlayer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1580,29 +1580,7 @@ func (ec *executionContext) fieldContext_Mutation_buyPlayer(ctx context.Context,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_PlayerTransfer_id(ctx, field)
-			case "playerId":
-				return ec.fieldContext_PlayerTransfer_playerId(ctx, field)
-			case "player":
-				return ec.fieldContext_PlayerTransfer_player(ctx, field)
-			case "amountInDollars":
-				return ec.fieldContext_PlayerTransfer_amountInDollars(ctx, field)
-			case "ownerTeamId":
-				return ec.fieldContext_PlayerTransfer_ownerTeamId(ctx, field)
-			case "ownerTeam":
-				return ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
-			case "completedAt":
-				return ec.fieldContext_PlayerTransfer_completedAt(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_PlayerTransfer_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_PlayerTransfer_updatedAt(ctx, field)
-			case "status":
-				return ec.fieldContext_PlayerTransfer_status(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PlayerTransfer", field.Name)
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	defer func() {

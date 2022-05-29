@@ -25,7 +25,7 @@ func (r *mutationResolver) UpdatePlayer(ctx context.Context, input graphmodel.Up
 	return r.Services.Player().Update(ctx, input)
 }
 
-func (r *mutationResolver) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.PlayerTransfer, error) {
+func (r *mutationResolver) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (bool, error) {
 	return r.Services.Transfer().BuyPlayer(ctx, input)
 }
 

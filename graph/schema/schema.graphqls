@@ -11,6 +11,6 @@ type Mutation {
   updateTeam(input: UpdateTeamInput!): Team!
 
   updatePlayer(input: UpdatePlayerInput!): Player!
-  buyPlayer(input: BuyPlayerInput!): PlayerTransfer!
+  buyPlayer(input: BuyPlayerInput!): Boolean!
   createTransfer(input: CreateTransferInput!): PlayerTransfer!
 }
