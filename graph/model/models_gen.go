@@ -12,6 +12,13 @@ type BuyPlayerInput struct {
 	PlayerTransferID int64 `json:"playerTransferId"`
 }
 
+type CreateTransferInput struct {
+	// The id of the player
+	PlayerID int64 `json:"playerId"`
+	// The amount in dollars that the player will be transferred for
+	AmountInDollars int64 `json:"amountInDollars"`
+}
+
 type LoginInput struct {
 	// The email id of the user which is used for login
 	Email string `json:"email"`
@@ -24,13 +31,6 @@ type LoginResponse struct {
 	Token string `json:"token"`
 	// The user
 	User *User `json:"user"`
-}
-
-type MovePlayerToTransferInput struct {
-	// The id of the player
-	ID int64 `json:"id"`
-	// The amount in dollars that the player will be transfered for
-	AmountInDollars int64 `json:"amountInDollars"`
 }
 
 type PaginationInput struct {
@@ -57,6 +57,8 @@ type Player struct {
 	Type *PlayerType `json:"type"`
 	// The country of the player
 	Country *string `json:"country"`
+	// The transfer status of the player
+	TransferStatus *TransferStatus `json:"transferStatus"`
 	// The team that the player belongs to
 	Team *Team `json:"team"`
 }
@@ -71,8 +73,8 @@ type PlayerList struct {
 type PlayerTransfer struct {
 	ID              int64   `json:"id"`
 	Player          *Player `json:"player"`
-	AmountInDollars *int64  `json:"AmountInDollars"`
-	OwnerTeam       *Team   `json:"OwnerTeam"`
+	AmountInDollars *int64  `json:"amountInDollars"`
+	OwnerTeam       *Team   `json:"ownerTeam"`
 }
 
 type PlayerTransferList struct {
@@ -83,6 +85,7 @@ type PlayerTransferList struct {
 }
 
 type PlayerTransferListInput struct {
+	OnlyMine   *bool            `json:"onlyMine"`
 	Pagination *PaginationInput `json:"pagination"`
 }
 
@@ -270,5 +273,46 @@ func (e *SortOrder) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SortOrder) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type TransferStatus string
+
+const (
+	TransferStatusOwned  TransferStatus = "owned"
+	TransferStatusOnSale TransferStatus = "on_sale"
+)
+
+var AllTransferStatus = []TransferStatus{
+	TransferStatusOwned,
+	TransferStatusOnSale,
+}
+
+func (e TransferStatus) IsValid() bool {
+	switch e {
+	case TransferStatusOwned, TransferStatusOnSale:
+		return true
+	}
+	return false
+}
+
+func (e TransferStatus) String() string {
+	return string(e)
+}
+
+func (e *TransferStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TransferStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TransferStatus", str)
+	}
+	return nil
+}
+
+func (e TransferStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

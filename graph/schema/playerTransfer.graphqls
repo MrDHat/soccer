@@ -1,8 +1,8 @@
 type PlayerTransfer {
   id: ID!
   player: Player
-  AmountInDollars: Int
-  OwnerTeam: Team
+  amountInDollars: Int
+  ownerTeam: Team
 }
 
 type PlayerTransferList {
@@ -12,7 +12,19 @@ type PlayerTransferList {
   data: [Player!]!
 }
 
+input CreateTransferInput {
+  """
+  The id of the player
+  """
+  playerId: ID!
+  """
+  The amount in dollars that the player will be transferred for
+  """
+  amountInDollars: Int!
+}
+
 input PlayerTransferListInput {
+  onlyMine: Boolean
   pagination: PaginationInput
 }
 

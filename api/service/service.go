@@ -13,12 +13,14 @@ type Services interface {
 	User() api.User
 	Team() api.Team
 	Player() api.Player
+	Transfer() api.Transfer
 }
 
 type services struct {
-	user   api.User
-	team   api.Team
-	player api.Player
+	user     api.User
+	team     api.Team
+	player   api.Player
+	transfer api.Transfer
 }
 
 func (s *services) User() api.User {
@@ -33,6 +35,10 @@ func (s *services) Player() api.Player {
 	return s.player
 }
 
+func (s *services) Transfer() api.Transfer {
+	return s.transfer
+}
+
 // Init intializes the services
 func Init() Services {
 	db := instance.DB()
@@ -40,8 +46,10 @@ func Init() Services {
 	userRepo := repository.NewUserRepo(db)
 	teamRepo := repository.NewTeamRepo(db)
 	playerRepo := repository.NewPlayerRepo(db)
+	playerTransferRepo := repository.NewPlayerTransferRepo(db)
 
 	userValidator := validators.NewUser()
+	transferValidator := validators.NewTransfer()
 
 	teamHelper := helpers.NewTeam()
 	authHelper := helpers.NewAuth()
@@ -61,6 +69,13 @@ func Init() Services {
 		player: api.NewPlayer(
 			playerRepo,
 			userRepo,
+			authHelper,
+		),
+		transfer: api.NewTransfer(
+			transferValidator,
+			userRepo,
+			playerRepo,
+			playerTransferRepo,
 			authHelper,
 		),
 	}

@@ -36,6 +36,10 @@ type Player {
   """
   country: String
   """
+  The transfer status of the player
+  """
+  transferStatus: TransferStatus
+  """
   The team that the player belongs to
   """
   team: Team
@@ -53,6 +57,11 @@ enum PlayerType {
   defender
   midfielder
   attacker
+}
+
+enum TransferStatus {
+  owned
+  on_sale
 }
 
 input TeamPlayerListInput {
@@ -76,15 +85,4 @@ input UpdatePlayerInput {
   The country of the player
   """
   country: String
-}
-
-input MovePlayerToTransferInput {
-  """
-  The id of the player
-  """
-  id: ID!
-  """
-  The amount in dollars that the player will be transfered for
-  """
-  amountInDollars: Int!
 }

@@ -30,6 +30,7 @@ func (h *team) createRandomPlayer(playerType string) *models.Player {
 		Age:                   utils.RandomAge(),
 		CurrentValueInDollars: int64(constants.DefaultPlayerAmount),
 		PlayerType:            playerType,
+		TransferStatus:        string(constants.PlayerTransferStatusOwned),
 	}
 
 	return &p

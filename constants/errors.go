@@ -28,6 +28,10 @@ const (
 
 	// player errors
 	PlayerNotFound = "PlayerNotFound"
+
+	// tranfer errors
+	TransferPlayerIDEmpty = "TransferPlayerIDEmpty"
+	TransferAmountInvalid = "TransferAmountInvalid"
 )
 
 var ErrorCode = map[string]string{
@@ -49,6 +53,8 @@ var ErrorCode = map[string]string{
 	LoginInputEmailEmpty:        "200005",
 	LoginInputPasswordEmpty:     "200007",
 	UserAlreadyExists:           "200007",
+	TransferPlayerIDEmpty:       "200008",
+	TransferAmountInvalid:       "200009",
 
 	// 401 errors
 	Unauthorized:         "300000",
@@ -78,4 +84,7 @@ var ErrorString = map[string]string{
 	TeamNotFound: "The team could not be found",
 
 	PlayerNotFound: "The player could not be found",
+
+	TransferPlayerIDEmpty: "The player id cannot be empty",
+	TransferAmountInvalid: "The amount is invalid",
 }

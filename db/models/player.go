@@ -13,6 +13,7 @@ type Player struct {
 	Age                   int64  `json:"age" orm:"column(age)"`
 	CurrentValueInDollars int64  `json:"current_value_in_dollars" orm:"column(current_value_in_dollars)"`
 	PlayerType            string `json:"player_type" orm:"column(player_type)"`
+	TransferStatus        string `json:"transfer_status" orm:"column(transfer_status);default(owned)"`
 	Country               string `json:"country" orm:"column(country)"`
 	Team                  *Team  `json:"team" orm:"rel(fk)"`
 }
@@ -29,6 +30,14 @@ func stringToPlayerTypeEnum(val *string) *graphmodel.PlayerType {
 	return nil
 }
 
+func stringToTransferStatusEnum(val *string) *graphmodel.TransferStatus {
+	if val != nil {
+		res := graphmodel.TransferStatus(*val)
+		return &res
+	}
+	return nil
+}
+
 func (m *Player) Serialize() *graphmodel.Player {
 	res := &graphmodel.Player{
 		ID:                    m.ID,
@@ -39,6 +48,7 @@ func (m *Player) Serialize() *graphmodel.Player {
 		Age:                   &m.Age,
 		CurrentValueInDollars: &m.CurrentValueInDollars,
 		Type:                  stringToPlayerTypeEnum(&m.PlayerType),
+		TransferStatus:        stringToTransferStatusEnum(&m.TransferStatus),
 		Country:               &m.Country,
 	}
 	if m.Team != nil {

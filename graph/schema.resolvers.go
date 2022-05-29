@@ -26,12 +26,12 @@ func (r *mutationResolver) UpdatePlayer(ctx context.Context, input graphmodel.Up
 	return r.Services.Player().Update(ctx, input)
 }
 
-func (r *mutationResolver) MovePlayerToTransfer(ctx context.Context, input graphmodel.MovePlayerToTransferInput) (*graphmodel.Player, error) {
+func (r *mutationResolver) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.PlayerTransfer, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *mutationResolver) BuyPlayer(ctx context.Context, input graphmodel.BuyPlayerInput) (*graphmodel.Player, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) CreateTransfer(ctx context.Context, input graphmodel.CreateTransferInput) (*graphmodel.PlayerTransfer, error) {
+	return r.Services.Transfer().Create(ctx, input)
 }
 
 func (r *queryResolver) Me(ctx context.Context) (*graphmodel.User, error) {
