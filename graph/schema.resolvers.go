@@ -42,8 +42,8 @@ func (r *queryResolver) MyTeam(ctx context.Context) (*graphmodel.Team, error) {
 	return r.Services.Team().My(ctx)
 }
 
-func (r *queryResolver) PlayerTransfers(ctx context.Context, input graphmodel.PlayerTransferListInput) (*graphmodel.PlayerTransferList, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) PlayerTransfers(ctx context.Context, input *graphmodel.PlayerTransferListInput) (*graphmodel.PlayerTransferList, error) {
+	return r.Services.Transfer().List(ctx, input)
 }
 
 // Mutation returns generated.MutationResolver implementation.

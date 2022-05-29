@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"math"
 
 	"soccer-manager/api/helpers"
 	apiutils "soccer-manager/api/utils"
@@ -18,6 +19,7 @@ import (
 
 type Transfer interface {
 	Create(ctx context.Context, input graphmodel.CreateTransferInput) (*graphmodel.PlayerTransfer, error)
+	List(ctx context.Context, input *graphmodel.PlayerTransferListInput) (*graphmodel.PlayerTransferList, error)
 }
 
 type transfer struct {
@@ -94,6 +96,77 @@ func (svc *transfer) Create(ctx context.Context, input graphmodel.CreateTransfer
 
 	return res, nil
 
+}
+
+func (svc *transfer) List(ctx context.Context, input *graphmodel.PlayerTransferListInput) (*graphmodel.PlayerTransferList, error) {
+	var (
+		res = &graphmodel.PlayerTransferList{
+			Data: []*graphmodel.PlayerTransfer{},
+		}
+		fetchCount = false
+		query      = models.PlayerTransferQuery{}
+	)
+
+	logger.Log.Info("authenticating user")
+	userID, isAuthed := svc.authHelper.IsAuthorized(ctx, 0)
+	if !isAuthed {
+		return nil, apiutils.HandleError(ctx, constants.Unauthorized, errors.New(constants.Unauthorized))
+	}
+
+	if input != nil {
+		if input.OnlyMine != nil && *input.OnlyMine {
+			// fetching only my transfers
+			logger.Log.Info("getting user by id")
+			user, err := svc.userRepo.FindOne(ctx, models.UserQuery{
+				User: models.User{
+					Base: models.Base{
+						ID: userID,
+					},
+				},
+			}, false)
+			if err != nil {
+				if err == orm.ErrNoRows {
+					return nil, apiutils.HandleError(ctx, constants.NotFound, errors.New(constants.UserNotFound))
+				}
+				return nil, apiutils.HandleError(ctx, constants.InternalServerError, err)
+			}
+			query.OwnerTeam = user.Team
+		}
+		if input.Pagination != nil {
+			if input.Pagination.Limit != 0 && input.Pagination.Page != 0 {
+				query.Limit = &input.Pagination.Limit
+				query.Page = &input.Pagination.Page
+
+				// count needs to be fetched only if pagination is asked for
+				fetchCount = true
+			}
+		}
+		if input.Status != nil {
+			query.Status = input.Status.String()
+		}
+	}
+
+	logger.Log.Info("getting player transfers")
+	transfers, totalRecords, err := svc.playerTransferRepo.FindAll(ctx, query, false, fetchCount)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return res, nil
+		}
+	}
+	if input != nil && input.Pagination != nil {
+		if input.Pagination.Limit != 0 && input.Pagination.Page != 0 {
+			totalPage := int64(math.Ceil(float64(totalRecords) / float64(*query.Limit)))
+			res.CurrentPage = query.Page
+			res.TotalPage = &totalPage
+			res.TotalRecords = &totalRecords
+		}
+	}
+
+	for i := range transfers {
+		res.Data = append(res.Data, transfers[i].Serialize())
+	}
+
+	return res, nil
 }
 
 func NewTransfer(

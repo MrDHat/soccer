@@ -79,15 +79,16 @@ type PlayerTransfer struct {
 }
 
 type PlayerTransferList struct {
-	TotalPage    *int64    `json:"totalPage"`
-	CurrentPage  *int64    `json:"currentPage"`
-	TotalRecords *int64    `json:"totalRecords"`
-	Data         []*Player `json:"data"`
+	TotalPage    *int64            `json:"totalPage"`
+	CurrentPage  *int64            `json:"currentPage"`
+	TotalRecords *int64            `json:"totalRecords"`
+	Data         []*PlayerTransfer `json:"data"`
 }
 
 type PlayerTransferListInput struct {
-	OnlyMine   *bool            `json:"onlyMine"`
-	Pagination *PaginationInput `json:"pagination"`
+	OnlyMine   *bool                 `json:"onlyMine"`
+	Status     *PlayerTransferStatus `json:"status"`
+	Pagination *PaginationInput      `json:"pagination"`
 }
 
 type SignupInput struct {

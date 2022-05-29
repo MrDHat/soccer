@@ -1,7 +1,7 @@
 type Query {
   me: User!
   myTeam: Team!
-  playerTransfers(input: PlayerTransferListInput!): PlayerTransferList
+  playerTransfers(input: PlayerTransferListInput): PlayerTransferList
 }
 
 type Mutation {

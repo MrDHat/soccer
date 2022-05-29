@@ -10,7 +10,7 @@ type PlayerTransferList {
   totalPage: Int
   currentPage: Int
   totalRecords: Int
-  data: [Player!]!
+  data: [PlayerTransfer!]!
 }
 
 enum PlayerTransferStatus {
@@ -31,6 +31,7 @@ input CreateTransferInput {
 
 input PlayerTransferListInput {
   onlyMine: Boolean
+  status: PlayerTransferStatus
   pagination: PaginationInput
 }
 

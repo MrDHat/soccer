@@ -139,6 +139,12 @@ func (repo *playerTransferRepo) FindAll(ctx context.Context, query models.Player
 	if query.OwnerTeam != nil && query.OwnerTeam.ID != 0 {
 		qs = qs.Filter("owner_team_id", query.OwnerTeam.ID)
 	}
+	if query.NotInTeamID != nil && *query.NotInTeamID != 0 {
+		qs = qs.Exclude("owner_team_id", query.OwnerTeam.ID)
+	}
+	if query.Status != "" {
+		qs = qs.Filter("status", query.Status)
+	}
 
 	countQs := qs
 

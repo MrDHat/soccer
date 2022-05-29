@@ -43,10 +43,11 @@ func (m *PlayerTransfer) Serialize() *graphmodel.PlayerTransfer {
 
 type PlayerTransferQuery struct {
 	PlayerTransfer
-	Limit     *int64
-	Page      *int64
-	SortOrder *string
-	SortBy    *string
+	NotInTeamID *int64
+	Limit       *int64
+	Page        *int64
+	SortOrder   *string
+	SortBy      *string
 }
 
 func init() {
