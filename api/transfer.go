@@ -82,6 +82,7 @@ func (svc *transfer) Create(ctx context.Context, input graphmodel.CreateTransfer
 		AmountInDollars: input.AmountInDollars,
 		OwnerTeam:       p.Team,
 		Player:          p,
+		Status:          string(constants.TransferStatusPending),
 	}
 	err = svc.playerTransferRepo.Create(ctx, t)
 	if err != nil {

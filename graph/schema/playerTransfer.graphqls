@@ -3,6 +3,7 @@ type PlayerTransfer {
   player: Player
   amountInDollars: Int
   ownerTeam: Team
+  status: PlayerTransferStatus
 }
 
 type PlayerTransferList {
@@ -10,6 +11,11 @@ type PlayerTransferList {
   currentPage: Int
   totalRecords: Int
   data: [Player!]!
+}
+
+enum PlayerTransferStatus {
+  pending
+  completed
 }
 
 input CreateTransferInput {

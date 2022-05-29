@@ -85,6 +85,7 @@ type ComplexityRoot struct {
 		ID              func(childComplexity int) int
 		OwnerTeam       func(childComplexity int) int
 		Player          func(childComplexity int) int
+		Status          func(childComplexity int) int
 	}
 
 	PlayerTransferList struct {
@@ -375,6 +376,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlayerTransfer.Player(childComplexity), true
+
+	case "PlayerTransfer.status":
+		if e.complexity.PlayerTransfer.Status == nil {
+			break
+		}
+
+		return e.complexity.PlayerTransfer.Status(childComplexity), true
 
 	case "PlayerTransferList.currentPage":
 		if e.complexity.PlayerTransferList.CurrentPage == nil {
@@ -727,6 +735,7 @@ input UpdatePlayerInput {
   player: Player
   amountInDollars: Int
   ownerTeam: Team
+  status: PlayerTransferStatus
 }
 
 type PlayerTransferList {
@@ -734,6 +743,11 @@ type PlayerTransferList {
   currentPage: Int
   totalRecords: Int
   data: [Player!]!
+}
+
+enum PlayerTransferStatus {
+  pending
+  completed
 }
 
 input CreateTransferInput {
@@ -1508,6 +1522,8 @@ func (ec *executionContext) fieldContext_Mutation_buyPlayer(ctx context.Context,
 				return ec.fieldContext_PlayerTransfer_amountInDollars(ctx, field)
 			case "ownerTeam":
 				return ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
+			case "status":
+				return ec.fieldContext_PlayerTransfer_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlayerTransfer", field.Name)
 		},
@@ -1573,6 +1589,8 @@ func (ec *executionContext) fieldContext_Mutation_createTransfer(ctx context.Con
 				return ec.fieldContext_PlayerTransfer_amountInDollars(ctx, field)
 			case "ownerTeam":
 				return ec.fieldContext_PlayerTransfer_ownerTeam(ctx, field)
+			case "status":
+				return ec.fieldContext_PlayerTransfer_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlayerTransfer", field.Name)
 		},
@@ -2458,6 +2476,47 @@ func (ec *executionContext) fieldContext_PlayerTransfer_ownerTeam(ctx context.Co
 				return ec.fieldContext_Team_players(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlayerTransfer_status(ctx context.Context, field graphql.CollectedField, obj *graphmodel.PlayerTransfer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlayerTransfer_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*graphmodel.PlayerTransferStatus)
+	fc.Result = res
+	return ec.marshalOPlayerTransferStatus2ᚖsoccerᚑmanagerᚋgraphᚋmodelᚐPlayerTransferStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlayerTransfer_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlayerTransfer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PlayerTransferStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6006,6 +6065,10 @@ func (ec *executionContext) _PlayerTransfer(ctx context.Context, sel ast.Selecti
 
 			out.Values[i] = ec._PlayerTransfer_ownerTeam(ctx, field, obj)
 
+		case "status":
+
+			out.Values[i] = ec._PlayerTransfer_status(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7156,6 +7219,22 @@ func (ec *executionContext) marshalOPlayerTransferList2ᚖsoccerᚑmanagerᚋgra
 		return graphql.Null
 	}
 	return ec._PlayerTransferList(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPlayerTransferStatus2ᚖsoccerᚑmanagerᚋgraphᚋmodelᚐPlayerTransferStatus(ctx context.Context, v interface{}) (*graphmodel.PlayerTransferStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(graphmodel.PlayerTransferStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOPlayerTransferStatus2ᚖsoccerᚑmanagerᚋgraphᚋmodelᚐPlayerTransferStatus(ctx context.Context, sel ast.SelectionSet, v *graphmodel.PlayerTransferStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOPlayerType2ᚖsoccerᚑmanagerᚋgraphᚋmodelᚐPlayerType(ctx context.Context, v interface{}) (*graphmodel.PlayerType, error) {

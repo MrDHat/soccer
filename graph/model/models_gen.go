@@ -71,10 +71,11 @@ type PlayerList struct {
 }
 
 type PlayerTransfer struct {
-	ID              int64   `json:"id"`
-	Player          *Player `json:"player"`
-	AmountInDollars *int64  `json:"amountInDollars"`
-	OwnerTeam       *Team   `json:"ownerTeam"`
+	ID              int64                 `json:"id"`
+	Player          *Player               `json:"player"`
+	AmountInDollars *int64                `json:"amountInDollars"`
+	OwnerTeam       *Team                 `json:"ownerTeam"`
+	Status          *PlayerTransferStatus `json:"status"`
 }
 
 type PlayerTransferList struct {
@@ -147,6 +148,47 @@ type User struct {
 	Name *string `json:"name"`
 	// The team this user belongs to
 	Team *Team `json:"team"`
+}
+
+type PlayerTransferStatus string
+
+const (
+	PlayerTransferStatusPending   PlayerTransferStatus = "pending"
+	PlayerTransferStatusCompleted PlayerTransferStatus = "completed"
+)
+
+var AllPlayerTransferStatus = []PlayerTransferStatus{
+	PlayerTransferStatusPending,
+	PlayerTransferStatusCompleted,
+}
+
+func (e PlayerTransferStatus) IsValid() bool {
+	switch e {
+	case PlayerTransferStatusPending, PlayerTransferStatusCompleted:
+		return true
+	}
+	return false
+}
+
+func (e PlayerTransferStatus) String() string {
+	return string(e)
+}
+
+func (e *PlayerTransferStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PlayerTransferStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PlayerTransferStatus", str)
+	}
+	return nil
+}
+
+func (e PlayerTransferStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type PlayerType string
