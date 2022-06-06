@@ -30,6 +30,6 @@ this player, they must be bought for this price.
 
 
 
-### Not about Migrations
+### Note about Migrations
 
 Migrations should be run using [migrate]([https://github.com/golang-migrate/migrate](https://github.com/golang-migrate/migrate)) by running bash inside the service container. The default folder for migrations is `db/migrations`
